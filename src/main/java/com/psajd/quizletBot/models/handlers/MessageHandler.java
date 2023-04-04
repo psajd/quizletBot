@@ -1,21 +1,47 @@
 package com.psajd.quizletBot.models.handlers;
 
-import com.psajd.quizletBot.constants.BotAnswers;
 import com.psajd.quizletBot.models.BotState;
-import com.psajd.quizletBot.models.BotStateCash;
-import com.psajd.quizletBot.models.KeyboardFactory;
+import com.psajd.quizletBot.models.caching.BotStateCash;
+import com.psajd.quizletBot.services.ServiceAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
 @Component
 public class MessageHandler {
 
-    private MainMenuHandler mainMenuHandler;
+    private ServiceAggregator serviceAggregator;
     private BotStateCash botStateCash;
+
+    private MainMenuEventsHandler mainMenuEventsHandler;
+
+
+    public BotApiMethod<?> handle(Message message, BotState botState) {
+        long chatId = message.getChatId();
+
+        if (serviceAggregator.getPersonService().getPersonById(chatId) == null) {
+            return mainMenuEventsHandler.saveNewPerson(message);
+        }
+
+        botStateCash.saveBotState(chatId, botState);
+
+        switch (botState) {
+            case ON_START -> {
+                return mainMenuEventsHandler.getStartMessage(chatId, message);
+            }
+            case ON_ALL_PACKS -> {
+                return mainMenuEventsHandler.getAllPacks(chatId);
+            }
+            case ON_PACK_CREATION_START -> {
+                return mainMenuEventsHandler.addNewPack(chatId);
+            }
+            case ON_PACK_CREATION_NAME -> {
+                return mainMenuEventsHandler.addPackName(chatId, message);
+            }
+        }
+        return null;
+    }
 
     @Autowired
     public void setBotStateCash(BotStateCash botStateCash) {
@@ -23,25 +49,12 @@ public class MessageHandler {
     }
 
     @Autowired
-    public MessageHandler(MainMenuHandler mainMenuHandler) {
-        this.mainMenuHandler = mainMenuHandler;
+    public void setServiceAggregator(ServiceAggregator serviceAggregator) {
+        this.serviceAggregator = serviceAggregator;
     }
 
-    public BotApiMethod<?> handle(Message message) {
-        if (!message.hasText()) {
-            return getErrorMessage(message.getChatId().toString());
-        }
-
-        BotApiMethod<?> method = null;
-
-
-        return method == null ? getErrorMessage(message.getChatId().toString()) : method;
-    }
-
-    public SendMessage getErrorMessage(String chatId) {
-        SendMessage message = new SendMessage(chatId, BotAnswers.EXCEPTION_TRY_AGAIN.getAnswer());
-        ReplyKeyboardMarkup replyKeyboardMarkup = KeyboardFactory.createKeyboard(BotState.ON_START);
-        message.setReplyMarkup(replyKeyboardMarkup);
-        return message;
+    @Autowired
+    public void setMainMenuEventsHandler(MainMenuEventsHandler mainMenuEventsHandler) {
+        this.mainMenuEventsHandler = mainMenuEventsHandler;
     }
 }

@@ -25,7 +25,8 @@ public class CardPackServiceImpl implements CardPackService {
 
     @Override
     public CardPack updateCardPack(CardPack cardPack) {
-        return null;
+        cardPackRepository.updateNameAndPersonById(cardPack.getName(), cardPack.getPerson(), cardPack.getId());
+        return cardPack;
     }
 
     @Override

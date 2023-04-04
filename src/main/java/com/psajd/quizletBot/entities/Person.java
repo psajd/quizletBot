@@ -16,11 +16,20 @@ import java.util.Set;
 @Table(name = "person")
 public class Person {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
     private Long id;
 
     private String name;
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CardPack> cardPacks;
+
+    public void addCardPack(CardPack cardPack) {
+        cardPacks.add(cardPack);
+        cardPack.setPerson(this);
+    }
+
+    public void removeCardPack(CardPack cardPack) {
+        cardPacks.remove(cardPack);
+        cardPack.setPerson(null);
+    }
 }
