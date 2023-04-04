@@ -5,6 +5,8 @@ import com.psajd.quizletBot.repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PersonServiceImpl implements PersonService {
 
@@ -35,4 +37,11 @@ public class PersonServiceImpl implements PersonService {
     public Person getPersonById(Long personId) {
         return personRepository.findById(personId).orElse(null);
     }
+
+    @Override
+    public List<Person> getAll() {
+        return personRepository.findAll();
+    }
+
+
 }

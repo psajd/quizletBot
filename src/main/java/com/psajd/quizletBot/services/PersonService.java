@@ -2,6 +2,8 @@ package com.psajd.quizletBot.services;
 
 import com.psajd.quizletBot.entities.Person;
 
+import java.util.List;
+
 public interface PersonService {
 
     Person addPerson(Person person);
@@ -12,4 +14,5 @@ public interface PersonService {
 
     Person getPersonById(Long personId);
 
+    List<Person> getAll();
 }

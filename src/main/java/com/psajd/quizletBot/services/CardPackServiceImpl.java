@@ -5,6 +5,8 @@ import com.psajd.quizletBot.repositories.CardPackRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CardPackServiceImpl implements CardPackService {
 
@@ -34,5 +36,9 @@ public class CardPackServiceImpl implements CardPackService {
     @Override
     public CardPack getCardPackById(Long id) {
         return null;
+    }
+
+    public List<CardPack> getPacksByPersonId(Long id) {
+        return cardPackRepository.findByPerson_Id(id);
     }
 }
