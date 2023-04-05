@@ -24,16 +24,46 @@ public class InlineKeyboardFactory {
 
     private static InlineKeyboardMarkup onPackInfoKeyboard() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        List<InlineKeyboardButton> firstRow = new ArrayList<>();
-        InlineKeyboardButton addBtn = new InlineKeyboardButton(BotCommands.ADD_CARD.getCommand());
-        addBtn.setCallbackData(BotCommands.ADD_CARD.getCommand());
 
-        InlineKeyboardButton removeBtn = new InlineKeyboardButton(BotCommands.REMOVE_CARD.getCommand());
-        addBtn.setCallbackData(BotCommands.REMOVE_CARD.getCommand());
-        firstRow.add(addBtn);
-        firstRow.add(removeBtn);
+        InlineKeyboardButton buttonAdd = new InlineKeyboardButton();
+        buttonAdd.setText(BotCommands.ADD_CARD.getCommand());
 
-        inlineKeyboardMarkup.setKeyboard(List.of(firstRow));
+        InlineKeyboardButton buttonRemove = new InlineKeyboardButton();
+        buttonRemove.setText(BotCommands.REMOVE_CARD.getCommand());
+
+        InlineKeyboardButton buttonChangeName = new InlineKeyboardButton();
+        buttonChangeName.setText(BotCommands.CHANGE_NAME.getCommand());
+
+        InlineKeyboardButton buttonStatistics = new InlineKeyboardButton();
+        buttonStatistics.setText(BotCommands.SHOW_PACK_STATISTIC.getCommand());
+
+        InlineKeyboardButton buttonRemoveCardPack = new InlineKeyboardButton();
+        buttonRemoveCardPack.setText(BotCommands.REMOVE_CARD_PACK.getCommand());
+
+
+        buttonAdd.setCallbackData(BotCommands.ADD_CARD.getCommand());
+        buttonRemove.setCallbackData(BotCommands.REMOVE_CARD.getCommand());
+        buttonChangeName.setCallbackData(BotCommands.CHANGE_NAME.getCommand());
+        buttonStatistics.setCallbackData(BotCommands.SHOW_PACK_STATISTIC.getCommand());
+        buttonRemoveCardPack.setCallbackData(BotCommands.REMOVE_CARD_PACK.getCommand());
+
+        List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
+        List<InlineKeyboardButton> keyboardButtonsRow2 = new ArrayList<>();
+        List<InlineKeyboardButton> keyboardButtonsRow3 = new ArrayList<>();
+        List<InlineKeyboardButton> keyboardButtonsRow4 = new ArrayList<>();
+        keyboardButtonsRow1.add(buttonAdd);
+        keyboardButtonsRow1.add(buttonRemove);
+        keyboardButtonsRow2.add(buttonChangeName);
+        keyboardButtonsRow3.add(buttonStatistics);
+        keyboardButtonsRow4.add(buttonRemoveCardPack);
+
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(keyboardButtonsRow1);
+        rowList.add(keyboardButtonsRow2);
+        rowList.add(keyboardButtonsRow3);
+        rowList.add(keyboardButtonsRow4);
+
+        inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
     }
 }

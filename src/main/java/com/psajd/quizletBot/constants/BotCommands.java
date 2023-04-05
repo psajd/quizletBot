@@ -9,8 +9,11 @@ public enum BotCommands {
 
     TRAIN("Let's practice\uD83D\uDCA1"),
     SHOW_CARD("Show card\uD83D\uDD2C"),
-    ADD_CARD("Add card➕"),
-    REMOVE_CARD("Remove card➖"),
+    ADD_CARD("Add card✅"),
+    REMOVE_CARD("Remove card❌"),
+    CHANGE_NAME("Change pack name\uD83D\uDEE0"),
+    SHOW_PACK_STATISTIC("Show statistic\uD83D\uDCCA"),
+    REMOVE_CARD_PACK("Remove card pack❌"),
     GO_BACK("Go back ⬇️");
     private final String command;
 

@@ -5,17 +5,21 @@ import com.psajd.quizletBot.constants.BotCommands;
 import com.psajd.quizletBot.entities.CardPack;
 import com.psajd.quizletBot.entities.Person;
 import com.psajd.quizletBot.models.BotState;
+import com.psajd.quizletBot.models.InlineKeyboardFactory;
+import com.psajd.quizletBot.models.QuizletBot;
 import com.psajd.quizletBot.models.caching.BotStateCache;
-import com.psajd.quizletBot.models.KeyboardFactory;
+import com.psajd.quizletBot.models.ReplyKeyboardFactory;
 import com.psajd.quizletBot.models.caching.CardPackCache;
 import com.psajd.quizletBot.models.caching.TableCache;
 import com.psajd.quizletBot.services.ServiceAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
 
@@ -24,15 +28,16 @@ public class MainMenuEventsHandler {
 
     private final int tableRows = 2;
     private final int tableColumns = 3;
+    private ApplicationContext applicationContext;
     private ServiceAggregator serviceAggregator;
     private CardPackCache cardPackCache;
     private BotStateCache botStateCache;
 
     private TableCache tableCache;
 
-    public SendMessage getStartMessage(long chatId, Message inputMessage) {
+    public SendMessage getStartMessage(long chatId) {
         SendMessage message = new SendMessage(String.valueOf(chatId), BotAnswers.SUCCESSFUL_START_MESSAGE.getAnswer());
-        ReplyKeyboardMarkup replyKeyboardMarkup = KeyboardFactory.createKeyboard(BotState.ON_START);
+        ReplyKeyboardMarkup replyKeyboardMarkup = ReplyKeyboardFactory.createKeyboard(BotState.ON_START);
         message.setReplyMarkup(replyKeyboardMarkup);
         return message;
     }
@@ -61,7 +66,7 @@ public class MainMenuEventsHandler {
         CardPack cardPack = new CardPack();
         cardPackCache.saveCardPack(chatId, cardPack);
         SendMessage message = new SendMessage(String.valueOf(chatId), BotAnswers.CREATING_CARD_PACK_NAME.getAnswer());
-        ReplyKeyboardMarkup replyKeyboardMarkup = KeyboardFactory.createKeyboard(BotState.ON_PACK_CREATION_START);
+        ReplyKeyboardMarkup replyKeyboardMarkup = ReplyKeyboardFactory.createKeyboard(BotState.ON_PACK_CREATION_START);
         message.setReplyMarkup(replyKeyboardMarkup);
         botStateCache.saveBotState(chatId, BotState.ON_PACK_CREATION_NAME);
         return message;
@@ -72,7 +77,7 @@ public class MainMenuEventsHandler {
 
         if (message.getText().equals("Go back ⬇️")) {
             botStateCache.saveBotState(chatId, BotState.ON_START);
-            return getStartMessage(chatId, message);
+            return getStartMessage(chatId);
         }
         if (message.getText().isBlank()) {
             return new SendMessage(chatId.toString(), BotAnswers.WRONG_CARD_PACK_NAME.getAnswer());
@@ -86,7 +91,7 @@ public class MainMenuEventsHandler {
 
         botStateCache.saveBotState(chatId, BotState.ON_START);
         SendMessage result = new SendMessage(chatId.toString(), BotAnswers.SUCCESSFUL_CARD_PACK_ADD.getAnswer());
-        result.setReplyMarkup(KeyboardFactory.createKeyboard(BotState.ON_START));
+        result.setReplyMarkup(ReplyKeyboardFactory.createKeyboard(BotState.ON_START));
         return result;
     }
 
@@ -95,7 +100,7 @@ public class MainMenuEventsHandler {
         person.setName(message.getFrom().getUserName());
         person.setId(message.getChatId());
         serviceAggregator.getPersonService().addPerson(person);
-        return getStartMessage(message.getChatId(), message);
+        return getStartMessage(message.getChatId());
     }
 
     public SendMessage getPacksTable(Long chatId) {
@@ -114,9 +119,9 @@ public class MainMenuEventsHandler {
             }
         }
 
-        ReplyKeyboardMarkup keyboardMarkup = KeyboardFactory.createChooseTableKeyboard(rawTable, tableNumber, maxTablesAmount);
-
+        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardFactory.createChooseTableKeyboard(rawTable, tableNumber, maxTablesAmount);
         SendMessage sendMessage = new SendMessage(chatId.toString(), BotAnswers.SUCCESSFUL_CARD_PACK_CHOOSE_TABLE.getAnswer());
+        sendMessage.setReplyMarkup(InlineKeyboardFactory.createKeyboard(BotState.ON_PACK_INFO));
         sendMessage.setReplyMarkup(keyboardMarkup);
         botStateCache.saveBotState(chatId, BotState.ON_CHOOSE_PACK);
         return sendMessage;
@@ -134,7 +139,7 @@ public class MainMenuEventsHandler {
         } else if (message.getText().equals("Go back ⬇️")) {
             botStateCache.saveBotState(chatId, BotState.ON_START);
             tableCache.saveNumber(chatId, null);
-            return getStartMessage(chatId, message);
+            return getStartMessage(chatId);
         }
         tableCache.saveNumber(chatId, null);
         botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
@@ -148,10 +153,27 @@ public class MainMenuEventsHandler {
             return getPacksTable(chatId);
         }
 
+        addReplyKeyboardPackInfo(chatId);
+
         botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
-        SendMessage sendMessage = new SendMessage(chatId.toString(), "pack info: " + cardPack.getName());
-        sendMessage.setReplyMarkup(KeyboardFactory.createKeyboard(BotState.ON_PACK_INFO));
+        SendMessage sendMessage = new SendMessage(chatId.toString(), cardPack.getName() + "\n\n" + "Pack info\n\n" +
+                "Amount of cards: " + cardPack.getCards().size() + "\n" +
+                "Wrong answers: " + "\n" +
+                "Correct answers: " + "\n" +
+                "Winrate: " + "\n");
+        sendMessage.setReplyMarkup(InlineKeyboardFactory.createKeyboard(BotState.ON_PACK_INFO));
         return sendMessage;
+    }
+
+    private void addReplyKeyboardPackInfo(Long chatId) {
+        QuizletBot quizletBot = applicationContext.getBean("springWebhookBot", QuizletBot.class);
+        SendMessage setKeyboard = new SendMessage(chatId.toString(), "Card pack menu");
+        setKeyboard.setReplyMarkup(ReplyKeyboardFactory.createKeyboard(BotState.ON_PACK_INFO));
+        try {
+            quizletBot.execute(setKeyboard);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public SendMessage choosePackInfoButton(Long chatId, Message message) {
@@ -210,6 +232,11 @@ public class MainMenuEventsHandler {
     @Autowired
     public void setCardPackCash(CardPackCache cardPackCache) {
         this.cardPackCache = cardPackCache;
+    }
+
+    @Autowired
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     @Autowired

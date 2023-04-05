@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import java.util.ArrayList;
 import java.util.List;
 
-public class KeyboardFactory {
+public class ReplyKeyboardFactory {
 
     public static ReplyKeyboardMarkup createKeyboard(BotState state) {
         switch (state) {

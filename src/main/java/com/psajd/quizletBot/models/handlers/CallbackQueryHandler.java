@@ -17,7 +17,6 @@ public class CallbackQueryHandler {
     }
 
     public BotApiMethod<?> handle(CallbackQuery callbackQuery) {
-
         return null;
     }
 }
