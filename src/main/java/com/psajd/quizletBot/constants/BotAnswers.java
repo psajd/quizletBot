@@ -16,7 +16,10 @@ public enum BotAnswers {
 
     SUCCESSFUL_CARD_PACK_ADD("Card pack was added successfully"),
 
-    SUCCESSFUL_CARD_PACK_CHOOSE_TABLE("Enter the name of the desired deck of cards");
+    SUCCESSFUL_CARD_PACK_CHOOSE_TABLE("Enter the name of the desired deck of cards"),
+
+    CREATING_CARD_ADD_QUESTION("Please, enter card question"),
+    CREATING_CARD_ADD_ANSWER("Please, enter card answer");
 
     private final String answer;
 

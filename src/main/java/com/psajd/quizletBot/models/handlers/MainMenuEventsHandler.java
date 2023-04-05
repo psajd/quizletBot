@@ -85,7 +85,9 @@ public class MainMenuEventsHandler {
         serviceAggregator.getCardPackService().updateCardPack(cardPack);
 
         botStateCache.saveBotState(chatId, BotState.ON_START);
-        return new SendMessage(chatId.toString(), BotAnswers.SUCCESSFUL_CARD_PACK_ADD.getAnswer());
+        SendMessage result = new SendMessage(chatId.toString(), BotAnswers.SUCCESSFUL_CARD_PACK_ADD.getAnswer());
+        result.setReplyMarkup(KeyboardFactory.createKeyboard(BotState.ON_START));
+        return result;
     }
 
     public BotApiMethod<?> saveNewPerson(Message message) {
@@ -146,7 +148,53 @@ public class MainMenuEventsHandler {
             return getPacksTable(chatId);
         }
 
-        return new SendMessage(chatId.toString(), "pack info: " + cardPack.getName());
+        botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+        SendMessage sendMessage = new SendMessage(chatId.toString(), "pack info: " + cardPack.getName());
+        sendMessage.setReplyMarkup(KeyboardFactory.createKeyboard(BotState.ON_PACK_INFO));
+        return sendMessage;
+    }
+
+    public SendMessage choosePackInfoButton(Long chatId, Message message) {
+        if (message.getText().equals(BotCommands.GO_BACK.getCommand())) {
+            return getPacksTable(chatId);
+        } else if (message.getText().equals(BotCommands.SHOW_CARD.getCommand())) {
+            return showCards(chatId, message);
+        } else if (message.getText().equals(BotCommands.ADD_CARD.getCommand())) {
+            return addNewCard(chatId, message);
+        } else if (message.getText().equals(BotCommands.REMOVE_CARD.getCommand())) {
+            return removeCard(chatId, message);
+        } else if (message.getText().equals(BotCommands.TRAIN.getCommand())) {
+            return startTraining(chatId, message);
+        }
+        return null;
+    }
+
+    public SendMessage startTraining(Long chatId, Message message) {
+
+        return null;
+    }
+
+    public SendMessage showCards(Long chatId, Message message) {
+
+        return null;
+
+    }
+
+    public SendMessage addNewCard(Long chatId, Message message) {
+        return null;
+    }
+
+    public SendMessage removeCard(Long chatId, Message message) {
+        return null;
+
+    }
+
+    public void addCardQuestion(Long chatId, Message message) {
+
+    }
+
+    public void addCardAnswer(Long chatId, Message message) {
+
     }
 
     @Autowired

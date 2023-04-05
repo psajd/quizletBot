@@ -3,7 +3,6 @@ package com.psajd.quizletBot.models;
 import com.psajd.quizletBot.constants.BotCommands;
 import com.psajd.quizletBot.entities.CardPack;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.ArrayList;
@@ -13,23 +12,39 @@ public class KeyboardFactory {
 
     public static ReplyKeyboardMarkup createKeyboard(BotState state) {
         switch (state) {
-            case ON_START -> {
-                return onStartKeyboard();
-            }
             case ON_PACK_CREATION_START -> {
-                return onPackCreation();
+                return onPackCreationKeyboard();
+            }
+            case ON_PACK_INFO -> {
+                return onPackInfoKeyboard();
             }
             default -> {
-                return null;
+                return onStartKeyboard();
             }
         }
     }
 
-    private static ReplyKeyboardMarkup onPackCreation() {
+    private static ReplyKeyboardMarkup onPackInfoKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        KeyboardRow first = new KeyboardRow();
+        first.add(BotCommands.TRAIN.getCommand());
+        first.add(BotCommands.SHOW_CARD.getCommand());
+        keyboardRows.add(first);
+
+        KeyboardRow last = new KeyboardRow();
+        last.add(BotCommands.GO_BACK.getCommand());
+        keyboardRows.add(last);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        return replyKeyboardMarkup;
+    }
+
+    private static ReplyKeyboardMarkup onPackCreationKeyboard() {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow keyboardButtons = new KeyboardRow();
-        keyboardButtons.add("Go back ⬇️");
+        keyboardButtons.add(BotCommands.GO_BACK.getCommand());
         keyboardRows.add(keyboardButtons);
         replyKeyboardMarkup.setKeyboard(keyboardRows);
         return replyKeyboardMarkup;
@@ -59,7 +74,7 @@ public class KeyboardFactory {
         }
         keyboardRows.add(keyboardRow);
         KeyboardRow lastRow = new KeyboardRow();
-        lastRow.add("Go back ⬇️");
+        lastRow.add(BotCommands.GO_BACK.getCommand());
         keyboardRows.add(lastRow);
         keyboardMarkup.setKeyboard(keyboardRows);
         return keyboardMarkup;

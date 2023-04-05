@@ -45,6 +45,9 @@ public class MessageHandler {
             case ON_CHOOSE_PACK -> {
                 return mainMenuEventsHandler.choosePack(chatId, message);
             }
+            case ON_PACK_INFO -> {
+                return mainMenuEventsHandler.choosePackInfoButton(chatId, message);
+            }
         }
         return null;
     }
