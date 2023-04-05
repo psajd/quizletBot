@@ -9,9 +9,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CardPackRepository extends JpaRepository<CardPack, Long> {
+    Optional<CardPack> findByName(String name);
     @Transactional
     @Modifying
     @Query("update CardPack c set c.name = ?1, c.person = ?2 where c.id = ?3")

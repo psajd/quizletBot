@@ -14,4 +14,6 @@ public interface CardPackService {
     CardPack getCardPackById(Long id);
 
     public List<CardPack> getPacksByPersonId(Long id);
+
+    public CardPack getCardPackByName(String name);
 }

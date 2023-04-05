@@ -11,7 +11,7 @@ import java.util.Map;
 @Service
 @Setter
 @Getter
-public class CardPackCash {
+public class CardPackCache {
     private final Map<Long, CardPack> cardPackMap = new HashMap<>();
 
     public void saveCardPack(long userId, CardPack cardPack) {

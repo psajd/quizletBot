@@ -5,10 +5,10 @@ import com.psajd.quizletBot.constants.BotCommands;
 import com.psajd.quizletBot.entities.CardPack;
 import com.psajd.quizletBot.entities.Person;
 import com.psajd.quizletBot.models.BotState;
-import com.psajd.quizletBot.models.caching.BotStateCash;
+import com.psajd.quizletBot.models.caching.BotStateCache;
 import com.psajd.quizletBot.models.KeyboardFactory;
-import com.psajd.quizletBot.models.caching.CardPackCash;
-import com.psajd.quizletBot.repositories.PersonRepository;
+import com.psajd.quizletBot.models.caching.CardPackCache;
+import com.psajd.quizletBot.models.caching.TableCache;
 import com.psajd.quizletBot.services.ServiceAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,13 +21,17 @@ import java.util.List;
 
 @Component
 public class MainMenuEventsHandler {
+
+    private final int tableRows = 2;
+    private final int tableColumns = 3;
     private ServiceAggregator serviceAggregator;
-    private CardPackCash cardPackCash;
-    private BotStateCash botStateCash;
+    private CardPackCache cardPackCache;
+    private BotStateCache botStateCache;
+
+    private TableCache tableCache;
 
     public SendMessage getStartMessage(long chatId, Message inputMessage) {
-        SendMessage message = new SendMessage(String.valueOf(chatId), inputMessage.getText().equals(BotCommands.START.getCommand()) ?
-                BotAnswers.SUCCESSFUL_START_MESSAGE.getAnswer() : BotAnswers.EXCEPTION_TRY_AGAIN.getAnswer());
+        SendMessage message = new SendMessage(String.valueOf(chatId), BotAnswers.SUCCESSFUL_START_MESSAGE.getAnswer());
         ReplyKeyboardMarkup replyKeyboardMarkup = KeyboardFactory.createKeyboard(BotState.ON_START);
         message.setReplyMarkup(replyKeyboardMarkup);
         return message;
@@ -55,16 +59,21 @@ public class MainMenuEventsHandler {
 
     public SendMessage addNewPack(Long chatId) {
         CardPack cardPack = new CardPack();
-        cardPackCash.saveCardPack(chatId, cardPack);
+        cardPackCache.saveCardPack(chatId, cardPack);
         SendMessage message = new SendMessage(String.valueOf(chatId), BotAnswers.CREATING_CARD_PACK_NAME.getAnswer());
-
-        botStateCash.saveBotState(chatId, BotState.ON_PACK_CREATION_NAME);
+        ReplyKeyboardMarkup replyKeyboardMarkup = KeyboardFactory.createKeyboard(BotState.ON_PACK_CREATION_START);
+        message.setReplyMarkup(replyKeyboardMarkup);
+        botStateCache.saveBotState(chatId, BotState.ON_PACK_CREATION_NAME);
         return message;
     }
 
     public SendMessage addPackName(Long chatId, Message message) {
-        CardPack cardPack = cardPackCash.getCardPackMap().get(chatId);
+        CardPack cardPack = cardPackCache.getCardPackMap().get(chatId);
 
+        if (message.getText().equals("Go back ⬇️")) {
+            botStateCache.saveBotState(chatId, BotState.ON_START);
+            return getStartMessage(chatId, message);
+        }
         if (message.getText().isBlank()) {
             return new SendMessage(chatId.toString(), BotAnswers.WRONG_CARD_PACK_NAME.getAnswer());
         }
@@ -75,7 +84,7 @@ public class MainMenuEventsHandler {
 
         serviceAggregator.getCardPackService().updateCardPack(cardPack);
 
-        botStateCash.saveBotState(chatId, BotState.ON_START);
+        botStateCache.saveBotState(chatId, BotState.ON_START);
         return new SendMessage(chatId.toString(), BotAnswers.SUCCESSFUL_CARD_PACK_ADD.getAnswer());
     }
 
@@ -87,18 +96,76 @@ public class MainMenuEventsHandler {
         return getStartMessage(message.getChatId(), message);
     }
 
+    public SendMessage getPacksTable(Long chatId) {
+        List<CardPack> cardPacks = serviceAggregator.getCardPackService().getPacksByPersonId(chatId);
+        int maxTablesAmount = cardPacks.size() / (tableColumns * tableRows) + 1;
+        if (tableCache.getTableNumberMap().get(chatId) == null) {
+            tableCache.saveNumber(chatId, 1);
+        }
+        int tableNumber = tableCache.getTableNumberMap().get(chatId);
+
+        CardPack[][] rawTable = new CardPack[tableRows][tableColumns];
+        for (int i = 0; i < tableRows; i++) {
+            for (int j = 0; j < tableColumns; j++) {
+                int index = i * tableColumns + j + (tableNumber - 1) * tableColumns * tableRows;
+                rawTable[i][j] = index >= cardPacks.size() ? null : cardPacks.get(index);
+            }
+        }
+
+        ReplyKeyboardMarkup keyboardMarkup = KeyboardFactory.createChooseTableKeyboard(rawTable, tableNumber, maxTablesAmount);
+
+        SendMessage sendMessage = new SendMessage(chatId.toString(), BotAnswers.SUCCESSFUL_CARD_PACK_CHOOSE_TABLE.getAnswer());
+        sendMessage.setReplyMarkup(keyboardMarkup);
+        botStateCache.saveBotState(chatId, BotState.ON_CHOOSE_PACK);
+        return sendMessage;
+    }
+
+    public SendMessage choosePack(Long chatId, Message message) {
+        if (message.getText().equals("➡️")) {
+            botStateCache.saveBotState(chatId, BotState.ON_PACK_TABLE);
+            tableCache.saveNumber(chatId, tableCache.getTableNumberMap().get(chatId) + 1);
+            return getPacksTable(chatId);
+        } else if (message.getText().equals("⬅️")) {
+            botStateCache.saveBotState(chatId, BotState.ON_PACK_TABLE);
+            tableCache.saveNumber(chatId, tableCache.getTableNumberMap().get(chatId) - 1);
+            return getPacksTable(chatId);
+        } else if (message.getText().equals("Go back ⬇️")) {
+            botStateCache.saveBotState(chatId, BotState.ON_START);
+            tableCache.saveNumber(chatId, null);
+            return getStartMessage(chatId, message);
+        }
+        tableCache.saveNumber(chatId, null);
+        botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+        return getPackInfo(chatId, message);
+    }
+
+    public SendMessage getPackInfo(Long chatId, Message message) {
+        CardPack cardPack = serviceAggregator.getCardPackService().getCardPackByName(message.getText());
+        if (cardPack == null) {
+            botStateCache.saveBotState(chatId, BotState.ON_PACK_TABLE);
+            return getPacksTable(chatId);
+        }
+
+        return new SendMessage(chatId.toString(), "pack info: " + cardPack.getName());
+    }
+
     @Autowired
     public void setServiceAggregator(ServiceAggregator serviceAggregator) {
         this.serviceAggregator = serviceAggregator;
     }
 
     @Autowired
-    public void setBotStateCash(BotStateCash botStateCash) {
-        this.botStateCash = botStateCash;
+    public void setBotStateCash(BotStateCache botStateCache) {
+        this.botStateCache = botStateCache;
     }
 
     @Autowired
-    public void setCardPackCash(CardPackCash cardPackCash) {
-        this.cardPackCash = cardPackCash;
+    public void setCardPackCash(CardPackCache cardPackCache) {
+        this.cardPackCache = cardPackCache;
+    }
+
+    @Autowired
+    public void setTableCache(TableCache tableCache) {
+        this.tableCache = tableCache;
     }
 }

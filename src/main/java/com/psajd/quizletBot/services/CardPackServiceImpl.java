@@ -39,6 +39,10 @@ public class CardPackServiceImpl implements CardPackService {
         return null;
     }
 
+    public CardPack getCardPackByName(String name) {
+        return cardPackRepository.findByName(name).orElse(null);
+    }
+
     public List<CardPack> getPacksByPersonId(Long id) {
         return cardPackRepository.findByPerson_Id(id);
     }

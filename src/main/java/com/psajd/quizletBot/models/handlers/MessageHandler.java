@@ -1,7 +1,7 @@
 package com.psajd.quizletBot.models.handlers;
 
 import com.psajd.quizletBot.models.BotState;
-import com.psajd.quizletBot.models.caching.BotStateCash;
+import com.psajd.quizletBot.models.caching.BotStateCache;
 import com.psajd.quizletBot.services.ServiceAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 public class MessageHandler {
 
     private ServiceAggregator serviceAggregator;
-    private BotStateCash botStateCash;
+    private BotStateCache botStateCache;
 
     private MainMenuEventsHandler mainMenuEventsHandler;
 
@@ -24,7 +24,7 @@ public class MessageHandler {
             return mainMenuEventsHandler.saveNewPerson(message);
         }
 
-        botStateCash.saveBotState(chatId, botState);
+        botStateCache.saveBotState(chatId, botState);
 
         switch (botState) {
             case ON_START -> {
@@ -39,13 +39,19 @@ public class MessageHandler {
             case ON_PACK_CREATION_NAME -> {
                 return mainMenuEventsHandler.addPackName(chatId, message);
             }
+            case ON_PACK_TABLE -> {
+                return mainMenuEventsHandler.getPacksTable(chatId);
+            }
+            case ON_CHOOSE_PACK -> {
+                return mainMenuEventsHandler.choosePack(chatId, message);
+            }
         }
         return null;
     }
 
     @Autowired
-    public void setBotStateCash(BotStateCash botStateCash) {
-        this.botStateCash = botStateCash;
+    public void setBotStateCash(BotStateCache botStateCache) {
+        this.botStateCache = botStateCache;
     }
 
     @Autowired

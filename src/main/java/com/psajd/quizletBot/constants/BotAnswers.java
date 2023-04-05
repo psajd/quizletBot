@@ -14,7 +14,9 @@ public enum BotAnswers {
 
     WRONG_CARD_PACK_NAME("Your card pack name is invalid, try to create again"),
 
-    SUCCESSFUL_CARD_PACK_ADD("Card pack was added successfully");
+    SUCCESSFUL_CARD_PACK_ADD("Card pack was added successfully"),
+
+    SUCCESSFUL_CARD_PACK_CHOOSE_TABLE("Enter the name of the desired deck of cards");
 
     private final String answer;
 
