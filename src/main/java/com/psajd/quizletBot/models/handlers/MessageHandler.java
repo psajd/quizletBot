@@ -31,7 +31,7 @@ public class MessageHandler {
                 return mainMenuEventsHandler.getStartMessage(chatId);
             }
             case ON_ALL_PACKS -> {
-                return mainMenuEventsHandler.getAllPacks(chatId);
+                return mainMenuEventsHandler.getAllPacks(chatId, message);
             }
             case ON_PACK_CREATION_START -> {
                 return mainMenuEventsHandler.addNewPack(chatId);
@@ -47,6 +47,15 @@ public class MessageHandler {
             }
             case ON_PACK_INFO -> {
                 return mainMenuEventsHandler.choosePackInfoButton(chatId, message);
+            }
+            case ON_ADD_CARD_TERM -> {
+                return mainMenuEventsHandler.addCardTerm(chatId, message);
+            }
+            case ON_ADD_CARD_DEFINITION -> {
+                return mainMenuEventsHandler.addCardDefinition(chatId, message);
+            }
+            case ON_CARD_NAME_CHOICE -> {
+                return mainMenuEventsHandler.choiceCardAndRemove(chatId, message);
             }
         }
         return null;
