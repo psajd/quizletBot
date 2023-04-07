@@ -15,11 +15,15 @@ public enum BotAnswers {
     WRONG_CARD_PACK_NAME("Your card pack name is invalid, try to create again"),
 
     SUCCESSFUL_CARD_PACK_ADD("Card pack was added successfully"),
+    SUCCESSFUL_CARD_ADD("Card was added successfully"),
 
     SUCCESSFUL_CARD_PACK_CHOOSE_TABLE("Enter the name of the desired deck of cards"),
+    SUCCESSFUL_CARD_PACK_MENU("Card pack menu"),
+    ERROR_SOMETHING_WENT_WRONG("Something went wrong, try again"),
 
-    CREATING_CARD_ADD_QUESTION("Please, enter card question"),
-    CREATING_CARD_ADD_ANSWER("Please, enter card answer");
+    CREATING_CARD_ADD_QUESTION("Please, enter card term"),
+    CREATING_CARD_ADD_ANSWER("Please, enter card definition"),
+    DELETING_CARD_ENTER_CARD_TERM("Please, enter card term");
 
     private final String answer;
 
