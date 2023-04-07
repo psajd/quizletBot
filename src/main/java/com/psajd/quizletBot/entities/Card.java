@@ -21,11 +21,11 @@ public class Card {
     @Column(name = "number")
     private int number;
 
-    @Column(name = "answer")
-    private String answer;
+    @Column(name = "term")
+    private String term;
 
-    @Column(name = "question")
-    private String question;
+    @Column(name = "definition")
+    private String definition;
     @ManyToOne
     private CardPack cardPack;
 }
