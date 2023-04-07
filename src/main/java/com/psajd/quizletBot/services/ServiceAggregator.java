@@ -9,10 +9,13 @@ public class ServiceAggregator {
 
     private final PersonService personService;
 
+    private final CardService cardService;
+
     @Autowired
-    public ServiceAggregator(CardPackService cardPackService, PersonService personService) {
+    public ServiceAggregator(CardPackService cardPackService, PersonService personService, CardService cardService) {
         this.cardPackService = cardPackService;
         this.personService = personService;
+        this.cardService = cardService;
     }
 
     public CardPackService getCardPackService() {
@@ -21,5 +24,10 @@ public class ServiceAggregator {
 
     public PersonService getPersonService() {
         return personService;
+    }
+
+
+    public CardService getCardService() {
+        return cardService;
     }
 }
