@@ -19,4 +19,7 @@ public interface CardPackRepository extends JpaRepository<CardPack, Long> {
     @Query("update CardPack c set c.name = ?1, c.person = ?2 where c.id = ?3")
     int updateNameAndPersonById(String name, Person person, Long id);
     List<CardPack> findByPerson_Id(Long id);
+
+    @Override
+    void deleteById(Long aLong);
 }

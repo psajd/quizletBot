@@ -1,7 +1,7 @@
 package com.psajd.quizletBot.models;
 
 import com.psajd.quizletBot.configs.BotConfig;
-import com.psajd.quizletBot.constants.BotAnswers;
+import com.psajd.quizletBot.constants.BotMessages;
 import com.psajd.quizletBot.constants.BotCommands;
 import com.psajd.quizletBot.models.caching.BotStateCache;
 import com.psajd.quizletBot.models.handlers.CallbackQueryHandler;
@@ -50,7 +50,7 @@ public class QuizletBot extends SpringWebhookBot {
         String inputMsg = message.getText();
 
         if (!message.hasText()) {
-            return new SendMessage(message.getChatId().toString(), BotAnswers.EXCEPTION_TRY_AGAIN.getAnswer());
+            return new SendMessage(message.getChatId().toString(), BotMessages.EXCEPTION_TRY_AGAIN.getAnswer());
         }
         if (inputMsg.equals(BotCommands.START.getCommand())) {
             botState = BotState.ON_START;
@@ -58,8 +58,6 @@ public class QuizletBot extends SpringWebhookBot {
             botState = BotState.ON_PACK_CREATION_START;
         } else if (inputMsg.equals(BotCommands.CERTAIN_PACK.getCommand())) {
             botState = BotState.ON_PACK_TABLE;
-        } else if (inputMsg.equals(BotCommands.MY_PACKS.getCommand())) {
-            botState = BotState.ON_ALL_PACKS;
         } else {
             botState = botStateCache.getBotStateMap().get(message.getFrom().getId()) == null
                     ? BotState.ON_START

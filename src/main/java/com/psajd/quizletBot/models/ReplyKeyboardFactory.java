@@ -92,8 +92,6 @@ public class ReplyKeyboardFactory {
         keyboard.add(row);
         // Create another keyboard row
         row = new KeyboardRow();
-        // Set each button for the second line
-        row.add(BotCommands.MY_PACKS.getCommand());
         // Add the second row to the keyboard
         keyboard.add(row);
         // Set the keyboard to the markup

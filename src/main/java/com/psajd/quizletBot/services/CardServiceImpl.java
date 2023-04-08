@@ -26,8 +26,8 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public Card findCardByTermAndPerson(Long id, String term) {
-        return cardRepository.findByCardPack_Person_IdAndTerm(id, term);
+    public Card findCardByTermAndPersonAndPackName(Long id, String term, String packName) {
+        return cardRepository.findByCardPack_Person_IdAndTermAndCardPack_Name(id, term, packName);
     }
 
     @Autowired

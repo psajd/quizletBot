@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface CardRepository extends JpaRepository<Card, Long> {
+    Card findByCardPack_Person_IdAndTermAndCardPack_Name(Long id, String term, String name);
     Card findByCardPack_Person_IdAndTerm(Long id, String term);
     @Override
     void deleteById(Long aLong);

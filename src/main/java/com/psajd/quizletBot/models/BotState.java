@@ -14,6 +14,6 @@ public enum BotState {
     ON_ADD_CARD_TERM,
     ON_ADD_CARD_DEFINITION,
     ON_REMOVE_CARD,
-
+    ON_REMOVE_CARD_PACK,
     ON_CARD_NAME_CHOICE;
 }

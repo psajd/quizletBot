@@ -31,7 +31,7 @@ public class CardPackServiceImpl implements CardPackService {
 
     @Override
     public void deleteCardPack(CardPack cardPack) {
-
+        cardPackRepository.deleteById(cardPack.getId());
     }
 
     @Override

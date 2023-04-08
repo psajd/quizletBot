@@ -30,9 +30,6 @@ public class MessageHandler {
             case ON_START -> {
                 return mainMenuEventsHandler.getStartMessage(chatId);
             }
-            case ON_ALL_PACKS -> {
-                return mainMenuEventsHandler.getAllPacks(chatId, message);
-            }
             case ON_PACK_CREATION_START -> {
                 return mainMenuEventsHandler.addNewPack(chatId);
             }

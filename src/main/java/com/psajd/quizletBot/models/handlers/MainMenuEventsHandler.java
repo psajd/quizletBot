@@ -1,6 +1,6 @@
 package com.psajd.quizletBot.models.handlers;
 
-import com.psajd.quizletBot.constants.BotAnswers;
+import com.psajd.quizletBot.constants.BotMessages;
 import com.psajd.quizletBot.constants.BotCommands;
 import com.psajd.quizletBot.entities.Card;
 import com.psajd.quizletBot.entities.CardPack;
@@ -38,39 +38,16 @@ public class MainMenuEventsHandler {
     private CardCache cardCache;
 
     public BotApiMethod<?> getStartMessage(long chatId) {
-        SendMessage message = new SendMessage(String.valueOf(chatId), BotAnswers.SUCCESSFUL_START_MESSAGE.getAnswer());
+        SendMessage message = new SendMessage(String.valueOf(chatId), BotMessages.SUCCESSFUL_START_MESSAGE.getAnswer());
         ReplyKeyboardMarkup replyKeyboardMarkup = ReplyKeyboardFactory.createKeyboard(BotState.ON_START);
         message.setReplyMarkup(replyKeyboardMarkup);
         return message;
     }
 
-    public BotApiMethod<?> getAllPacks(long chatId, Message message) {
-        if (!message.getText().equals(BotCommands.MY_PACKS.getCommand())) {
-            return null;
-        }
-        List<CardPack> cardPacks = serviceAggregator
-                .getCardPackService()
-                .getPacksByPersonId(chatId);
-        StringBuilder stringBuilder = new StringBuilder();
-        if (cardPacks.isEmpty()) {
-            stringBuilder.append(BotAnswers.ERROR_ALL_PERSON_PACKS.getAnswer());
-        } else {
-            stringBuilder.append(BotAnswers.SUCCESSFUL_ALL_PERSON_PACKS.getAnswer()).append("\n\n");
-            for (int i = 0; i < cardPacks.size(); i++) {
-                CardPack cardPack = cardPacks.get(i);
-                stringBuilder.append(i + 1).append(".").append("\n");
-                stringBuilder.append("Card pack name: ").append(cardPack.getName()).append("\n");
-                stringBuilder.append("Cards amount: ").append(cardPack.getCards().size()).append("\n");
-                stringBuilder.append("\n");
-            }
-        }
-        return new SendMessage(String.valueOf(chatId), stringBuilder.toString());
-    }
-
     public BotApiMethod<?> addNewPack(Long chatId) {
         CardPack cardPack = new CardPack();
         cardPackCache.saveCardPack(chatId, cardPack);
-        SendMessage message = new SendMessage(String.valueOf(chatId), BotAnswers.CREATING_CARD_PACK_NAME.getAnswer());
+        SendMessage message = new SendMessage(String.valueOf(chatId), BotMessages.CREATING_CARD_PACK_NAME.getAnswer());
         ReplyKeyboardMarkup replyKeyboardMarkup = ReplyKeyboardFactory.createKeyboard(BotState.ON_PACK_CREATION_START);
         message.setReplyMarkup(replyKeyboardMarkup);
         botStateCache.saveBotState(chatId, BotState.ON_PACK_CREATION_NAME);
@@ -79,19 +56,18 @@ public class MainMenuEventsHandler {
 
     public BotApiMethod<?> addPackName(Long chatId, Message message) {
         CardPack cardPack = cardPackCache.getCardPackMap().get(chatId);
-
-        if (message.getText().equals("Go back ⬇️")) {
+        if (message.getText().equals(BotCommands.GO_BACK.getCommand())) {
             botStateCache.saveBotState(chatId, BotState.ON_START);
             return getStartMessage(chatId);
         }
         if (message.getText().isBlank()) {
-            return new SendMessage(chatId.toString(), BotAnswers.WRONG_CARD_PACK_NAME.getAnswer());
+            return new SendMessage(chatId.toString(), BotMessages.WRONG_CARD_PACK_NAME.getAnswer());
         }
 
         Person person = serviceAggregator.getPersonService().getPersonById(chatId);
         if (person.getCardPacks().stream().anyMatch(x -> x.getName().equals(message.getText()))) {
             botStateCache.saveBotState(chatId, BotState.ON_START);
-            executeAdditionalMethod(new SendMessage(chatId.toString(), "Pack with this name already exists"));
+            executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.EXCEPTION_PACK_ALREADY_EXIST.getAnswer()));
             return getStartMessage(chatId);
         }
         person.addCardPack(cardPack);
@@ -100,7 +76,7 @@ public class MainMenuEventsHandler {
         serviceAggregator.getCardPackService().addCardPack(cardPack);
 
         botStateCache.saveBotState(chatId, BotState.ON_START);
-        SendMessage result = new SendMessage(chatId.toString(), BotAnswers.SUCCESSFUL_CARD_PACK_ADD.getAnswer());
+        SendMessage result = new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_PACK_ADD.getAnswer());
         result.setReplyMarkup(ReplyKeyboardFactory.createKeyboard(BotState.ON_START));
         return result;
     }
@@ -117,7 +93,7 @@ public class MainMenuEventsHandler {
         List<CardPack> cardPacks = serviceAggregator.getCardPackService().getPacksByPersonId(chatId);
         if (cardPacks.isEmpty()) {
             botStateCache.saveBotState(chatId, BotState.ON_START);
-            return new SendMessage(chatId.toString(), "You haven't got any packs");
+            return new SendMessage(chatId.toString(), BotMessages.EXCEPTION_NO_AVAILABLE_PACK.getAnswer());
         }
         int maxTablesAmount = cardPacks.size() / (tableColumns * tableRows) + 1;
         if (tableCache.getTableNumberMap().get(chatId) == null) {
@@ -134,7 +110,7 @@ public class MainMenuEventsHandler {
         }
 
         ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardFactory.createChooseTableKeyboard(rawTable, tableNumber, maxTablesAmount);
-        SendMessage sendMessage = new SendMessage(chatId.toString(), BotAnswers.SUCCESSFUL_CARD_PACK_CHOOSE_TABLE.getAnswer());
+        SendMessage sendMessage = new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_PACK_CHOOSE_TABLE.getAnswer());
         sendMessage.setReplyMarkup(InlineKeyboardFactory.createKeyboard(BotState.ON_PACK_INFO));
         sendMessage.setReplyMarkup(keyboardMarkup);
         botStateCache.saveBotState(chatId, BotState.ON_CHOOSE_PACK);
@@ -150,7 +126,7 @@ public class MainMenuEventsHandler {
             botStateCache.saveBotState(chatId, BotState.ON_PACK_TABLE);
             tableCache.saveNumber(chatId, tableCache.getTableNumberMap().get(chatId) - 1);
             return getPacksTable(chatId);
-        } else if (message.getText().equals("Go back ⬇️")) {
+        } else if (message.getText().equals(BotCommands.GO_BACK.getCommand())) {
             botStateCache.saveBotState(chatId, BotState.ON_START);
             tableCache.saveNumber(chatId, null);
             return getStartMessage(chatId);
@@ -163,12 +139,12 @@ public class MainMenuEventsHandler {
     public BotApiMethod<?> getPackInfo(Long chatId, String packName) {
         CardPack cardPack = serviceAggregator.getCardPackService().getCardPackByName(packName);
         if (cardPack == null || !cardPack.getPerson().getId().equals(chatId)) {
-            executeAdditionalMethod(new SendMessage(chatId.toString(), "Pack wasn't found"));
+            executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.EXCEPTION_PACK_WAS_NOT_FOUND.getAnswer()));
             botStateCache.saveBotState(chatId, BotState.ON_PACK_TABLE);
             return getPacksTable(chatId);
         }
 
-        SendMessage setKeyboard = new SendMessage(chatId.toString(), BotAnswers.SUCCESSFUL_CARD_PACK_MENU.getAnswer());
+        SendMessage setKeyboard = new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_PACK_MENU.getAnswer());
         setKeyboard.setReplyMarkup(ReplyKeyboardFactory.createKeyboard(BotState.ON_PACK_INFO));
         executeAdditionalMethod(setKeyboard);
 
@@ -219,48 +195,67 @@ public class MainMenuEventsHandler {
     }
 
     public BotApiMethod<?> addNewCard(Long chatId, Message message) {
-        SendMessage sendMessage = new SendMessage(chatId.toString(), BotAnswers.CREATING_CARD_ADD_QUESTION.getAnswer());
+        SendMessage sendMessage = new SendMessage(chatId.toString(), BotMessages.CREATING_CARD_ADD_QUESTION.getAnswer());
         botStateCache.saveBotState(chatId, BotState.ON_ADD_CARD_TERM);
         return sendMessage;
     }
 
     public BotApiMethod<?> removeCard(Long chatId, Message message) {
         botStateCache.saveBotState(chatId, BotState.ON_CARD_NAME_CHOICE);
-        return new SendMessage(chatId.toString(), BotAnswers.DELETING_CARD_ENTER_CARD_TERM.getAnswer());
+        SendMessage sendMessage = new SendMessage(chatId.toString(), BotMessages.DELETING_CARD_ENTER_CARD_TERM.getAnswer());
+        sendMessage.setReplyMarkup(ReplyKeyboardFactory.createKeyboard(BotState.ON_PACK_CREATION_START));
+        return sendMessage;
     }
 
     public BotApiMethod<?> choiceCardAndRemove(Long chatId, Message message) {
-        Card card = serviceAggregator.getCardService().findCardByTermAndPerson(chatId, message.getText());
+        Card card = serviceAggregator.getCardService().findCardByTermAndPersonAndPackName(
+                chatId,
+                message.getText(),
+                cardPackCache.getCardPackMap().get(chatId).getName());
 
+        if (message.getText().equals(BotCommands.GO_BACK.getCommand())) {
+            botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+            return getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
+        }
         if (card == null) {
-            return new SendMessage(chatId.toString(), "Card not found, try again");
+            return new SendMessage(chatId.toString(), BotMessages.EXCEPTION_CARD_WAS_NOT_FOUND.getAnswer());
         }
 
         serviceAggregator.getCardService().deleteCard(card);
-        executeAdditionalMethod(new SendMessage(chatId.toString(), "card removed successfully"));
+        executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_REMOVE.getAnswer()));
         botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
         return getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
     }
 
     public BotApiMethod<?> addCardTerm(Long chatId, Message message) {
+        if (message.getText().equals(BotCommands.GO_BACK.getCommand())) {
+            cardCache.saveCard(chatId, null);
+            botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+            return getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
+        }
         Card card = new Card();
         CardPack cardPack = cardPackCache.getCardPackMap().get(chatId);
         if (cardPack.getCards().stream().anyMatch(x -> x.getTerm().equals(message.getText()))) {
             botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
-            executeAdditionalMethod(new SendMessage(chatId.toString(), "Term like this already exists"));
+            executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.EXCEPTION_NOT_UNIQUE_CARD_TERM.getAnswer()));
             return getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
         }
         card.setTerm(message.getText());
         botStateCache.saveBotState(chatId, BotState.ON_ADD_CARD_DEFINITION);
         cardCache.saveCard(chatId, card);
-        return new SendMessage(chatId.toString(), BotAnswers.CREATING_CARD_ADD_ANSWER.getAnswer());
+        return new SendMessage(chatId.toString(), BotMessages.CREATING_CARD_ADD_ANSWER.getAnswer());
     }
 
     public BotApiMethod<?> addCardDefinition(Long chatId, Message message) {
+        if (message.getText().equals(BotCommands.GO_BACK.getCommand())) {
+            cardCache.saveCard(chatId, null);
+            botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+            return getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
+        }
         Card card = cardCache.getCardMap().get(chatId);
         if (card == null) {
             botStateCache.saveBotState(chatId, BotState.ON_PACK_TABLE);
-            return new SendMessage(chatId.toString(), BotAnswers.ERROR_SOMETHING_WENT_WRONG.getAnswer());
+            return new SendMessage(chatId.toString(), BotMessages.ERROR_SOMETHING_WENT_WRONG.getAnswer());
         }
 
         card.setDefinition(message.getText());
@@ -270,13 +265,22 @@ public class MainMenuEventsHandler {
         botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
         serviceAggregator.getCardService().addCard(card);
 
-        executeAdditionalMethod(new SendMessage(chatId.toString(), BotAnswers.SUCCESSFUL_CARD_PACK_ADD.getAnswer()));
+        executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_PACK_ADD.getAnswer()));
 
         return getPackInfo(chatId, cardPack.getName());
     }
 
-    public BotApiMethod<?> removeCardPack(long chatId, Message message) {
+    public BotApiMethod<?> removeCardPackQuestion(Long chatId) {
+        SendMessage sendMessage = new SendMessage(chatId.toString(), BotMessages.QUESTION_ARE_YOU_SURE.getAnswer());
+        sendMessage.setReplyMarkup(InlineKeyboardFactory.createKeyboard(BotState.ON_REMOVE_CARD_PACK));
+        return sendMessage;
+    }
 
+    public BotApiMethod<?> removeCardPack(Long chatId) {
+        serviceAggregator.getCardPackService().deleteCardPack(cardPackCache.getCardPackMap().get(chatId));
+        executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_PACK_REMOVE.getAnswer()));
+        botStateCache.saveBotState(chatId, BotState.ON_START);
+        return getStartMessage(chatId);
     }
 
     @Autowired

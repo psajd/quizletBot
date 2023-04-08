@@ -9,5 +9,5 @@ public interface CardService {
 
     void deleteCard(Card card);
 
-    Card findCardByTermAndPerson(Long term, String id);
+    Card findCardByTermAndPersonAndPackName(Long term, String id, String packName);
 }

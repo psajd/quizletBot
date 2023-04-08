@@ -1,6 +1,7 @@
 package com.psajd.quizletBot.models.handlers;
 
 import com.psajd.quizletBot.constants.BotCommands;
+import com.psajd.quizletBot.models.BotState;
 import com.psajd.quizletBot.models.caching.BotStateCache;
 import com.psajd.quizletBot.models.caching.CardCache;
 import com.psajd.quizletBot.models.caching.CardPackCache;
@@ -29,7 +30,13 @@ public class CallbackQueryHandler {
         } else if (data.equals(BotCommands.REMOVE_CARD.getCommand())) {
             callBackAnswer = mainMenuEventsHandler.removeCard(chatId, message);
         } else if (data.equals(BotCommands.REMOVE_CARD_PACK.getCommand())) {
-            callBackAnswer = mainMenuEventsHandler.removeCardPack(chatId, message);
+            botStateCache.saveBotState(chatId, BotState.ON_REMOVE_CARD_PACK);
+            callBackAnswer = mainMenuEventsHandler.removeCardPackQuestion(chatId);
+        } else if (data.equals(BotCommands.CARD_PACK_REMOVE_YES.getCommand())) {
+            callBackAnswer = mainMenuEventsHandler.removeCardPack(chatId);
+        } else if (data.equals(BotCommands.CARD_PACK_REMOVE_NO.getCommand())) {
+            botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+            callBackAnswer = mainMenuEventsHandler.getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
         } else if (data.equals(BotCommands.CHANGE_NAME.getCommand())) {
 
         } else if (data.equals(BotCommands.SHOW_PACK_STATISTIC.getCommand())) {

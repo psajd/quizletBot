@@ -1,10 +1,18 @@
 package com.psajd.quizletBot.constants;
 
-public enum BotAnswers {
+public enum BotMessages {
 
+    EXCEPTION_PACK_ALREADY_EXIST("Pack with this name already exists"),
+    EXCEPTION_CARD_WAS_NOT_FOUND("Card not found, try again"),
+    EXCEPTION_NO_AVAILABLE_PACK("You haven't got any packs"),
+    EXCEPTION_PACK_WAS_NOT_FOUND("Pack wasn't found"),
+    EXCEPTION_NOT_UNIQUE_CARD_TERM("Card with this term already exists"),
     EXCEPTION_TRY_AGAIN("Don't understand, please, try again."),
 
     SUCCESSFUL_START_MESSAGE("Please, use main menu: "),
+    SUCCESSFUL_CARD_REMOVE("Card removed successfully"),
+    SUCCESSFUL_CARD_PACK_REMOVE("Card pack removed successfully"),
+    QUESTION_ARE_YOU_SURE("Are you sure?"),
 
     SUCCESSFUL_ALL_PERSON_PACKS("All your card packs: "),
 
@@ -27,7 +35,7 @@ public enum BotAnswers {
 
     private final String answer;
 
-    BotAnswers(String answer) {
+    BotMessages(String answer) {
         this.answer = answer;
     }
 

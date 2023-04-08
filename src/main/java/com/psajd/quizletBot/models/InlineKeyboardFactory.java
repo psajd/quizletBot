@@ -2,9 +2,7 @@ package com.psajd.quizletBot.models;
 
 import com.psajd.quizletBot.constants.BotCommands;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +14,36 @@ public class InlineKeyboardFactory {
             case ON_PACK_INFO -> {
                 return onPackInfoKeyboard();
             }
+            case ON_REMOVE_CARD_PACK -> {
+                return onRemoveCardPack();
+            }
             default -> {
                 return null;
             }
         }
+    }
+
+    private static InlineKeyboardMarkup onRemoveCardPack() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton buttonYes = new InlineKeyboardButton();
+        InlineKeyboardButton buttonNo = new InlineKeyboardButton();
+
+
+        buttonYes.setText(BotCommands.CARD_PACK_REMOVE_YES.getCommand());
+        buttonYes.setCallbackData(BotCommands.CARD_PACK_REMOVE_YES.getCommand());
+
+        buttonNo.setText(BotCommands.CARD_PACK_REMOVE_NO.getCommand());
+        buttonNo.setCallbackData(BotCommands.CARD_PACK_REMOVE_NO.getCommand());
+
+
+        List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
+        keyboardButtonsRow1.add(buttonYes);
+        keyboardButtonsRow1.add(buttonNo);
+
+        List<List<InlineKeyboardButton>> res = new ArrayList<>();
+        res.add(keyboardButtonsRow1);
+        inlineKeyboardMarkup.setKeyboard(res);
+        return inlineKeyboardMarkup;
     }
 
     private static InlineKeyboardMarkup onPackInfoKeyboard() {
