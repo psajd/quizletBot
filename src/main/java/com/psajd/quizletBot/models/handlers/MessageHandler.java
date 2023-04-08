@@ -54,6 +54,9 @@ public class MessageHandler {
             case ON_CARD_NAME_CHOICE -> {
                 return mainMenuEventsHandler.choiceCardAndRemove(chatId, message);
             }
+            case ON_SHOW_CARDS -> {
+                return mainMenuEventsHandler.showCards(chatId, message);
+            }
         }
         return null;
     }

@@ -5,8 +5,8 @@ public enum BotCommands {
     NEW_PACK("New card pack\uD83C\uDD95"),
     CERTAIN_PACK("Choose card pack\uD83D\uDD8A"),
 
-    TRAIN("Let's practice\uD83D\uDCA1"),
-    SHOW_CARD("Show cards\uD83D\uDD2C"),
+    PRACTICE("Let's practice\uD83D\uDCA1"),
+    SHOW_CARDS("Show cards\uD83D\uDD2C"),
     ADD_CARD("Add card✅"),
     REMOVE_CARD("Remove card❌"),
     CHANGE_NAME("Change pack name\uD83D\uDEE0"),

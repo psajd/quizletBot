@@ -9,7 +9,7 @@ public enum BotState {
     ON_CHOOSE_PACK,
     ON_PACK_INFO,
     ON_PRACTICE,
-    ON_SHOW_CARD,
+    ON_SHOW_CARDS,
     ON_ADD_CARD,
     ON_ADD_CARD_TERM,
     ON_ADD_CARD_DEFINITION,

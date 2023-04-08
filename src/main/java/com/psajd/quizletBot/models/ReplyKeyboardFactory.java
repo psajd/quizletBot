@@ -1,6 +1,7 @@
 package com.psajd.quizletBot.models;
 
 import com.psajd.quizletBot.constants.BotCommands;
+import com.psajd.quizletBot.entities.Card;
 import com.psajd.quizletBot.entities.CardPack;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -24,12 +25,38 @@ public class ReplyKeyboardFactory {
         }
     }
 
+    public static ReplyKeyboardMarkup onShowCards(List<Card> cards, Integer number) {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> arrowsRow = new ArrayList<>();
+        KeyboardRow keyboardRow = new KeyboardRow();
+        if (number == 1) {
+            keyboardRow.add("❌");
+        } else {
+            keyboardRow.add("⬅️");
+        }
+        keyboardRow.add(number + " / " + (cards.size() / 3 + 1));
+        if (number == cards.size() / 3 + 1) {
+            keyboardRow.add("❌");
+        } else {
+            keyboardRow.add("➡️");
+        }
+
+        KeyboardRow goBackRow = new KeyboardRow();
+        goBackRow.add(BotCommands.GO_BACK.getCommand());
+
+        arrowsRow.add(keyboardRow);
+        arrowsRow.add(goBackRow);
+
+        replyKeyboardMarkup.setKeyboard(arrowsRow);
+        return replyKeyboardMarkup;
+    }
+
     private static ReplyKeyboardMarkup onPackInfoKeyboard() {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboardRows = new ArrayList<>();
         KeyboardRow first = new KeyboardRow();
-        first.add(BotCommands.TRAIN.getCommand());
-        first.add(BotCommands.SHOW_CARD.getCommand());
+        first.add(BotCommands.PRACTICE.getCommand());
+        first.add(BotCommands.SHOW_CARDS.getCommand());
         keyboardRows.add(first);
 
         KeyboardRow last = new KeyboardRow();

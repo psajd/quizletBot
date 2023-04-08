@@ -8,11 +8,8 @@ import com.psajd.quizletBot.entities.Person;
 import com.psajd.quizletBot.models.BotState;
 import com.psajd.quizletBot.models.InlineKeyboardFactory;
 import com.psajd.quizletBot.models.QuizletBot;
-import com.psajd.quizletBot.models.caching.BotStateCache;
+import com.psajd.quizletBot.models.caching.*;
 import com.psajd.quizletBot.models.ReplyKeyboardFactory;
-import com.psajd.quizletBot.models.caching.CardCache;
-import com.psajd.quizletBot.models.caching.CardPackCache;
-import com.psajd.quizletBot.models.caching.TableCache;
 import com.psajd.quizletBot.services.ServiceAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -23,6 +20,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -33,6 +31,7 @@ public class MainMenuEventsHandler {
     private ApplicationContext applicationContext;
     private ServiceAggregator serviceAggregator;
     private CardPackCache cardPackCache;
+    private CardPageCache cardPageCache;
     private BotStateCache botStateCache;
     private TableCache tableCache;
     private CardCache cardCache;
@@ -171,13 +170,11 @@ public class MainMenuEventsHandler {
     public BotApiMethod<?> choosePackInfoButton(Long chatId, Message message) {
         if (message.getText().equals(BotCommands.GO_BACK.getCommand())) {
             return getPacksTable(chatId);
-        } else if (message.getText().equals(BotCommands.SHOW_CARD.getCommand())) {
+        } else if (message.getText().equals(BotCommands.SHOW_CARDS.getCommand())) {
+            botStateCache.saveBotState(chatId, BotState.ON_SHOW_CARDS);
             return showCards(chatId, message);
-        } else if (message.getText().equals(BotCommands.ADD_CARD.getCommand())) {
-            return addNewCard(chatId, message);
-        } else if (message.getText().equals(BotCommands.REMOVE_CARD.getCommand())) {
-            return removeCard(chatId, message);
-        } else if (message.getText().equals(BotCommands.TRAIN.getCommand())) {
+        } else if (message.getText().equals(BotCommands.PRACTICE.getCommand())) {
+            botStateCache.saveBotState(chatId, BotState.ON_PRACTICE);
             return startTraining(chatId, message);
         }
         return null;
@@ -189,9 +186,57 @@ public class MainMenuEventsHandler {
     }
 
     public BotApiMethod<?> showCards(Long chatId, Message message) {
+        CardPack cardPack = cardPackCache.getCardPackMap().get(chatId);
+        if (cardPack.getCards().isEmpty()) {
+            cardPageCache.saveCardPage(chatId, 1);
+            botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+            return getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
+        }
+        if (cardPageCache.getCardPageMap().get(chatId) == null) {
+            cardPageCache.saveCardPage(chatId, 1);
+        }
 
-        return null;
+        if (!message.getText().equals(BotCommands.SHOW_CARDS.getCommand())) {
+            if (message.getText().equals("⬅️")) {
+                cardPageCache.saveCardPage(chatId, cardPageCache.getCardPageMap().get(chatId) - 1);
+            } else if (message.getText().equals("➡️")) {
+                cardPageCache.saveCardPage(chatId, cardPageCache.getCardPageMap().get(chatId) + 1);
+            } else if (message.getText().equals(BotCommands.GO_BACK.getCommand())) {
+                cardPageCache.saveCardPage(chatId, 1);
+                tableCache.saveNumber(chatId, null);
+                botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+                return getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
+            } else {
+                return new SendMessage(message.getChatId().toString(), BotMessages.EXCEPTION_TRY_AGAIN.getAnswer());
+            }
+        }
 
+        int cardsAmount = 3;
+
+        List<Card> cards = cardPack.getCards().stream().toList();
+        int pageIndex = cardPageCache.getCardPageMap().get(chatId) - 1;
+        List<String> resultList = new ArrayList<>();
+
+        SendMessage sendMessage = new SendMessage(chatId.toString(), BotMessages.INFO_YOUR_CARDS.getAnswer());
+        sendMessage.setReplyMarkup(ReplyKeyboardFactory.onShowCards(cards, pageIndex + 1));
+
+        for (int i = 0; i < cardsAmount; i++) {
+            Card card = cards.size() - (pageIndex * 3 + i) > 0 ? cards.get(pageIndex * 3 + i) : null;
+            if (card != null) {
+                String s = card.getTerm() + " - " + card.getDefinition();
+                resultList.add(s);
+            }
+        }
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < resultList.size(); i++) {
+            String s = resultList.get(i);
+            result.append("*****\n");
+            result.append(pageIndex + i + 1).append(". ");
+            result.append(s);
+            result.append("\n*****\n\n");
+        }
+        executeAdditionalMethod(sendMessage);
+        return new SendMessage(chatId.toString(), result.toString());
     }
 
     public BotApiMethod<?> addNewCard(Long chatId, Message message) {
@@ -265,7 +310,7 @@ public class MainMenuEventsHandler {
         botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
         serviceAggregator.getCardService().addCard(card);
 
-        executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_PACK_ADD.getAnswer()));
+        executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_ADD.getAnswer()));
 
         return getPackInfo(chatId, cardPack.getName());
     }
@@ -306,6 +351,11 @@ public class MainMenuEventsHandler {
     @Autowired
     public void setCardCache(CardCache cardCache) {
         this.cardCache = cardCache;
+    }
+
+    @Autowired
+    public void setCardPageCache(CardPageCache cardPageCache) {
+        this.cardPageCache = cardPageCache;
     }
 
     @Autowired

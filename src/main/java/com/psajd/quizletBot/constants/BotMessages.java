@@ -8,6 +8,7 @@ public enum BotMessages {
     EXCEPTION_PACK_WAS_NOT_FOUND("Pack wasn't found"),
     EXCEPTION_NOT_UNIQUE_CARD_TERM("Card with this term already exists"),
     EXCEPTION_TRY_AGAIN("Don't understand, please, try again."),
+    EXCEPTION_NO_AVAILABLE_CARDS("No available cards"),
 
     SUCCESSFUL_START_MESSAGE("Please, use main menu: "),
     SUCCESSFUL_CARD_REMOVE("Card removed successfully"),
@@ -15,6 +16,7 @@ public enum BotMessages {
     QUESTION_ARE_YOU_SURE("Are you sure?"),
 
     SUCCESSFUL_ALL_PERSON_PACKS("All your card packs: "),
+    INFO_YOUR_CARDS("Cards from yours card pack"),
 
     ERROR_ALL_PERSON_PACKS("You haven't got any packs"),
 
