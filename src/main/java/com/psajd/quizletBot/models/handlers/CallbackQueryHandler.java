@@ -3,7 +3,6 @@ package com.psajd.quizletBot.models.handlers;
 import com.psajd.quizletBot.constants.BotCommands;
 import com.psajd.quizletBot.models.BotState;
 import com.psajd.quizletBot.models.caching.BotStateCache;
-import com.psajd.quizletBot.models.caching.CardCache;
 import com.psajd.quizletBot.models.caching.CardPackCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,8 +15,8 @@ public class CallbackQueryHandler {
 
     private CardPackCache cardPackCache;
     private BotStateCache botStateCache;
-    private CardCache cardCache;
     private MainMenuEventsHandler mainMenuEventsHandler;
+    private PackMenuHandler packMenuHandler;
 
     public BotApiMethod<?> handle(CallbackQuery callbackQuery) {
         final long chatId = callbackQuery.getMessage().getChatId();
@@ -26,20 +25,18 @@ public class CallbackQueryHandler {
         BotApiMethod<?> callBackAnswer = null;
 
         if (data.equals(BotCommands.ADD_CARD.getCommand())) {
-            callBackAnswer = mainMenuEventsHandler.addNewCard(chatId, callbackQuery.getMessage());
+            callBackAnswer = packMenuHandler.addNewCard(chatId, callbackQuery.getMessage());
         } else if (data.equals(BotCommands.REMOVE_CARD.getCommand())) {
-            callBackAnswer = mainMenuEventsHandler.removeCard(chatId, message);
+            callBackAnswer = packMenuHandler.removeCard(chatId, message);
         } else if (data.equals(BotCommands.REMOVE_CARD_PACK.getCommand())) {
             botStateCache.saveBotState(chatId, BotState.ON_REMOVE_CARD_PACK);
-            callBackAnswer = mainMenuEventsHandler.removeCardPackQuestion(chatId);
+            callBackAnswer = packMenuHandler.removeCardPackQuestion(chatId);
         } else if (data.equals(BotCommands.CARD_PACK_REMOVE_YES.getCommand())) {
-            callBackAnswer = mainMenuEventsHandler.removeCardPack(chatId);
+            callBackAnswer = packMenuHandler.removeCardPack(chatId);
         } else if (data.equals(BotCommands.CARD_PACK_REMOVE_NO.getCommand())) {
             botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
             callBackAnswer = mainMenuEventsHandler.getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
         } else if (data.equals(BotCommands.CHANGE_NAME.getCommand())) {
-
-        } else if (data.equals(BotCommands.SHOW_PACK_STATISTIC.getCommand())) {
 
         }
 
@@ -63,7 +60,7 @@ public class CallbackQueryHandler {
     }
 
     @Autowired
-    public void setCardCache(CardCache cardCache) {
-        this.cardCache = cardCache;
+    public void setPackMenuHandler(PackMenuHandler packMenuHandler) {
+        this.packMenuHandler = packMenuHandler;
     }
 }
