@@ -2,6 +2,7 @@ package com.psajd.quizletBot.services;
 
 import com.psajd.quizletBot.entities.CardPack;
 import com.psajd.quizletBot.repositories.CardPackRepository;
+import com.psajd.quizletBot.services.interfaces.CardPackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,19 +25,8 @@ public class CardPackServiceImpl implements CardPackService {
     }
 
     @Override
-    public CardPack updateCardPack(CardPack cardPack) {
-        cardPackRepository.updateNameAndPersonById(cardPack.getName(), cardPack.getPerson(), cardPack.getId());
-        return cardPack;
-    }
-
-    @Override
     public void deleteCardPack(CardPack cardPack) {
         cardPackRepository.deleteById(cardPack.getId());
-    }
-
-    @Override
-    public CardPack getCardPackById(Long id) {
-        return null;
     }
 
     public CardPack getCardPackByName(String name) {

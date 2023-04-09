@@ -1,5 +1,8 @@
 package com.psajd.quizletBot.services;
 
+import com.psajd.quizletBot.services.interfaces.CardPackService;
+import com.psajd.quizletBot.services.interfaces.CardService;
+import com.psajd.quizletBot.services.interfaces.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

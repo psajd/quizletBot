@@ -1,6 +1,6 @@
 package com.psajd.quizletBot.controllers;
 
-import com.psajd.quizletBot.models.QuizletBot;
+import com.psajd.quizletBot.models.bot.QuizletBot;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

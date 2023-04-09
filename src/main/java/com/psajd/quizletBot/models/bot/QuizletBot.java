@@ -1,11 +1,11 @@
-package com.psajd.quizletBot.models;
+package com.psajd.quizletBot.models.bot;
 
 import com.psajd.quizletBot.configs.BotConfig;
 import com.psajd.quizletBot.constants.BotMessages;
 import com.psajd.quizletBot.constants.BotCommands;
 import com.psajd.quizletBot.models.caching.BotStateCache;
-import com.psajd.quizletBot.models.handlers.CallbackQueryHandler;
-import com.psajd.quizletBot.models.handlers.MessageHandler;
+import com.psajd.quizletBot.models.handlers.mainHandlers.CallbackQueryHandler;
+import com.psajd.quizletBot.models.handlers.mainHandlers.MessageHandler;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.bots.DefaultBotOptions;

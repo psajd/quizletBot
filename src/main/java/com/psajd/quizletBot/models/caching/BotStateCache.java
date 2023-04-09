@@ -1,6 +1,6 @@
 package com.psajd.quizletBot.models.caching;
 
-import com.psajd.quizletBot.models.BotState;
+import com.psajd.quizletBot.models.bot.BotState;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;

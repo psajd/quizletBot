@@ -1,6 +1,6 @@
 package com.psajd.quizletBot.configs;
 
-import com.psajd.quizletBot.models.QuizletBot;
+import com.psajd.quizletBot.models.bot.QuizletBot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;

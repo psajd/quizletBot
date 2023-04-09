@@ -1,15 +1,14 @@
-package com.psajd.quizletBot.models.handlers;
+package com.psajd.quizletBot.models.handlers.extraHandlers;
 
 import com.psajd.quizletBot.constants.BotMessages;
 import com.psajd.quizletBot.constants.BotCommands;
-import com.psajd.quizletBot.entities.Card;
 import com.psajd.quizletBot.entities.CardPack;
 import com.psajd.quizletBot.entities.Person;
-import com.psajd.quizletBot.models.BotState;
-import com.psajd.quizletBot.models.InlineKeyboardFactory;
-import com.psajd.quizletBot.models.QuizletBot;
+import com.psajd.quizletBot.models.bot.BotState;
+import com.psajd.quizletBot.models.keyboards.InlineKeyboardFactory;
+import com.psajd.quizletBot.models.bot.QuizletBot;
 import com.psajd.quizletBot.models.caching.*;
-import com.psajd.quizletBot.models.ReplyKeyboardFactory;
+import com.psajd.quizletBot.models.keyboards.ReplyKeyboardFactory;
 import com.psajd.quizletBot.services.ServiceAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -20,8 +19,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Component

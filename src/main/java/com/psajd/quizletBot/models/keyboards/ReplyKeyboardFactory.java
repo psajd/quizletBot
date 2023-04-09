@@ -1,8 +1,9 @@
-package com.psajd.quizletBot.models;
+package com.psajd.quizletBot.models.keyboards;
 
 import com.psajd.quizletBot.constants.BotCommands;
 import com.psajd.quizletBot.entities.Card;
 import com.psajd.quizletBot.entities.CardPack;
+import com.psajd.quizletBot.models.bot.BotState;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 

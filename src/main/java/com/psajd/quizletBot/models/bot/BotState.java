@@ -1,4 +1,4 @@
-package com.psajd.quizletBot.models;
+package com.psajd.quizletBot.models.bot;
 
 public enum BotState {
     ON_START,

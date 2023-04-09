@@ -1,11 +1,9 @@
-package com.psajd.quizletBot.services;
+package com.psajd.quizletBot.services.interfaces;
 
 import com.psajd.quizletBot.entities.Card;
 
 public interface CardService {
     Card addCard(Card card);
-
-    Card updateCard(Card card);
 
     void deleteCard(Card card);
 

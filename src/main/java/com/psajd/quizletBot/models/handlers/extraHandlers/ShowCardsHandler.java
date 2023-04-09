@@ -1,13 +1,12 @@
-package com.psajd.quizletBot.models.handlers;
+package com.psajd.quizletBot.models.handlers.extraHandlers;
 
 import com.psajd.quizletBot.constants.BotCommands;
 import com.psajd.quizletBot.constants.BotMessages;
 import com.psajd.quizletBot.entities.Card;
 import com.psajd.quizletBot.entities.CardPack;
-import com.psajd.quizletBot.models.BotState;
-import com.psajd.quizletBot.models.ReplyKeyboardFactory;
+import com.psajd.quizletBot.models.bot.BotState;
+import com.psajd.quizletBot.models.keyboards.ReplyKeyboardFactory;
 import com.psajd.quizletBot.models.caching.*;
-import com.psajd.quizletBot.services.ServiceAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;

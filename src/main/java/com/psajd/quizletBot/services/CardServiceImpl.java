@@ -2,6 +2,7 @@ package com.psajd.quizletBot.services;
 
 import com.psajd.quizletBot.entities.Card;
 import com.psajd.quizletBot.repositories.CardRepository;
+import com.psajd.quizletBot.services.interfaces.CardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +14,6 @@ public class CardServiceImpl implements CardService {
     @Override
     public Card addCard(Card card) {
         return cardRepository.save(card);
-    }
-
-    @Override
-    public Card updateCard(Card card) {
-        return null;
     }
 
     @Override

@@ -1,7 +1,11 @@
-package com.psajd.quizletBot.models.handlers;
+package com.psajd.quizletBot.models.handlers.mainHandlers;
 
-import com.psajd.quizletBot.models.BotState;
+import com.psajd.quizletBot.models.bot.BotState;
 import com.psajd.quizletBot.models.caching.BotStateCache;
+import com.psajd.quizletBot.models.handlers.extraHandlers.MainMenuEventsHandler;
+import com.psajd.quizletBot.models.handlers.extraHandlers.PackMenuHandler;
+import com.psajd.quizletBot.models.handlers.extraHandlers.PracticeHandler;
+import com.psajd.quizletBot.models.handlers.extraHandlers.ShowCardsHandler;
 import com.psajd.quizletBot.services.ServiceAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
