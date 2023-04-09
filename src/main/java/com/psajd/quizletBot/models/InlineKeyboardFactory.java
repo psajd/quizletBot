@@ -58,8 +58,8 @@ public class InlineKeyboardFactory {
         InlineKeyboardButton buttonChangeName = new InlineKeyboardButton();
         buttonChangeName.setText(BotCommands.CHANGE_NAME.getCommand());
 
-        InlineKeyboardButton buttonStatistics = new InlineKeyboardButton();
-        buttonStatistics.setText(BotCommands.SHOW_PACK_STATISTIC.getCommand());
+       /* InlineKeyboardButton buttonStatistics = new InlineKeyboardButton();
+        buttonStatistics.setText(BotCommands.SHOW_PACK_STATISTIC.getCommand());*/
 
         InlineKeyboardButton buttonRemoveCardPack = new InlineKeyboardButton();
         buttonRemoveCardPack.setText(BotCommands.REMOVE_CARD_PACK.getCommand());
@@ -68,7 +68,7 @@ public class InlineKeyboardFactory {
         buttonAdd.setCallbackData(BotCommands.ADD_CARD.getCommand());
         buttonRemove.setCallbackData(BotCommands.REMOVE_CARD.getCommand());
         buttonChangeName.setCallbackData(BotCommands.CHANGE_NAME.getCommand());
-        buttonStatistics.setCallbackData(BotCommands.SHOW_PACK_STATISTIC.getCommand());
+        //buttonStatistics.setCallbackData(BotCommands.SHOW_PACK_STATISTIC.getCommand());
         buttonRemoveCardPack.setCallbackData(BotCommands.REMOVE_CARD_PACK.getCommand());
 
         List<InlineKeyboardButton> keyboardButtonsRow1 = new ArrayList<>();
@@ -78,7 +78,7 @@ public class InlineKeyboardFactory {
         keyboardButtonsRow1.add(buttonAdd);
         keyboardButtonsRow1.add(buttonRemove);
         keyboardButtonsRow2.add(buttonChangeName);
-        keyboardButtonsRow3.add(buttonStatistics);
+        //keyboardButtonsRow3.add(buttonStatistics);
         keyboardButtonsRow4.add(buttonRemoveCardPack);
 
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();

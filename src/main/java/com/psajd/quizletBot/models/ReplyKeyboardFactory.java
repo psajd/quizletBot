@@ -25,6 +25,28 @@ public class ReplyKeyboardFactory {
         }
     }
 
+    public static ReplyKeyboardMarkup onPractice(List<Card> cards) {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        List<KeyboardRow> rows = new ArrayList<>();
+        KeyboardRow firstRow = new KeyboardRow();
+        firstRow.add(cards.get(0).getTerm());
+        firstRow.add(cards.get(1).getTerm());
+
+        KeyboardRow secondRow = new KeyboardRow();
+        secondRow.add(cards.get(2).getTerm());
+        secondRow.add(cards.get(3).getTerm());
+
+        KeyboardRow goBackRow = new KeyboardRow();
+        goBackRow.add(BotCommands.GO_BACK.getCommand());
+
+        rows.add(firstRow);
+        rows.add(secondRow);
+        rows.add(goBackRow);
+
+        replyKeyboardMarkup.setKeyboard(rows);
+        return replyKeyboardMarkup;
+    }
+
     public static ReplyKeyboardMarkup onShowCards(List<Card> cards, Integer number) {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> arrowsRow = new ArrayList<>();

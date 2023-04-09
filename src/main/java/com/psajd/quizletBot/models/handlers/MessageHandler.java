@@ -57,6 +57,9 @@ public class MessageHandler {
             case ON_SHOW_CARDS -> {
                 return mainMenuEventsHandler.showCards(chatId, message);
             }
+            case ON_CHECK_CORRECT_ANSWER -> {
+                return mainMenuEventsHandler.checkCorrectAnswer(chatId, message);
+            }
         }
         return null;
     }

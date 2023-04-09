@@ -11,6 +11,8 @@ public enum BotMessages {
     EXCEPTION_NO_AVAILABLE_CARDS("No available cards"),
 
     SUCCESSFUL_START_MESSAGE("Please, use main menu: "),
+    SUCCESSFUL_CORRECT_ANSWER("Answer is correct✅"),
+    SUCCESSFUL_WRONG_ANSWER("Answer is wrong❌. Correct answer: "),
     SUCCESSFUL_CARD_REMOVE("Card removed successfully"),
     SUCCESSFUL_CARD_PACK_REMOVE("Card pack removed successfully"),
     QUESTION_ARE_YOU_SURE("Are you sure?"),

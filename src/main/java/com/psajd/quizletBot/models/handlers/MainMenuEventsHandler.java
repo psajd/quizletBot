@@ -21,6 +21,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -175,14 +176,42 @@ public class MainMenuEventsHandler {
             return showCards(chatId, message);
         } else if (message.getText().equals(BotCommands.PRACTICE.getCommand())) {
             botStateCache.saveBotState(chatId, BotState.ON_PRACTICE);
-            return startTraining(chatId, message);
+            return startTraining(chatId);
         }
         return null;
     }
 
-    public BotApiMethod<?> startTraining(Long chatId, Message message) {
+    public BotApiMethod<?> startTraining(Long chatId) {
+        List<Card> cards = cardPackCache.getCardPackMap().get(chatId).getCards().stream().toList();
+        if (cards.size() < 4) {
+            botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+            executeAdditionalMethod(new SendMessage(chatId.toString(), "Minimal amount of cards for practice is 4, add some."));
+            return getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
+        }
+        List<Card> variants = pickNRandomCards(cards, 4);
+        Card correctCard = variants.get(0);
+        Collections.shuffle(variants);
+        cardCache.saveCard(chatId, correctCard);
 
-        return null;
+        SendMessage sendMessage = new SendMessage(chatId.toString(), "Choose correct term:\n\n" +
+                "... - " + correctCard.getDefinition());
+        sendMessage.setReplyMarkup(ReplyKeyboardFactory.onPractice(variants));
+        botStateCache.saveBotState(chatId, BotState.ON_CHECK_CORRECT_ANSWER);
+        return sendMessage;
+    }
+
+    public BotApiMethod<?> checkCorrectAnswer(Long chatId, Message message) {
+        if (message.getText().equals(BotCommands.GO_BACK.getCommand())) {
+            botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+            return getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
+        } else if (message.getText().equals(cardCache.getCardMap().get(chatId).getTerm())) {
+            executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CORRECT_ANSWER.getAnswer()));
+            return startTraining(chatId);
+        } else {
+            executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_WRONG_ANSWER.getAnswer()
+                    + cardCache.getCardMap().get(chatId).getTerm()));
+            return startTraining(chatId);
+        }
     }
 
     public BotApiMethod<?> showCards(Long chatId, Message message) {
@@ -231,7 +260,7 @@ public class MainMenuEventsHandler {
         for (int i = 0; i < resultList.size(); i++) {
             String s = resultList.get(i);
             result.append("*****\n");
-            result.append(pageIndex + i + 1).append(". ");
+            result.append(pageIndex * 3 + i + 1).append(". ");
             result.append(s);
             result.append("\n*****\n\n");
         }
@@ -326,6 +355,12 @@ public class MainMenuEventsHandler {
         executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_PACK_REMOVE.getAnswer()));
         botStateCache.saveBotState(chatId, BotState.ON_START);
         return getStartMessage(chatId);
+    }
+
+    private List<Card> pickNRandomCards(List<Card> lst, int n) {
+        List<Card> copy = new ArrayList<>(lst);
+        Collections.shuffle(copy);
+        return n > copy.size() ? copy.subList(0, copy.size()) : copy.subList(0, n);
     }
 
     @Autowired
