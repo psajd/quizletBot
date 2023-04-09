@@ -19,22 +19,44 @@ import java.util.List;
 
 @Component
 public class ShowCardsHandler {
+    private final int cardsAmount = 3;
     private CardPackCache cardPackCache;
     private CardPageCache cardPageCache;
     private BotStateCache botStateCache;
     private MainMenuEventsHandler mainMenuEventsHandler;
 
     public BotApiMethod<?> showCards(Long chatId, Message message) {
-        CardPack cardPack = cardPackCache.getCardPackMap().get(chatId);
+        CardPack cardPack = cardPackCache
+                .getCardPackMap()
+                .get(chatId);
+
         if (cardPack.getCards().isEmpty()) {
             cardPageCache.saveCardPage(chatId, 1);
             botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
             return mainMenuEventsHandler.getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
         }
+
         if (cardPageCache.getCardPageMap().get(chatId) == null) {
             cardPageCache.saveCardPage(chatId, 1);
         }
 
+        BotApiMethod<?> method = chooseNextPageOrGoBack(chatId, message);
+        if (method != null) {
+            return method;
+        }
+
+        List<Card> cards = cardPack.getCards().stream().toList();
+        int pageIndex = cardPageCache.getCardPageMap().get(chatId) - 1;
+
+        SendMessage sendMessage = new SendMessage(chatId.toString(), BotMessages.INFO_YOUR_CARDS.getAnswer());
+        sendMessage.setReplyMarkup(ReplyKeyboardFactory.onShowCards(cards, pageIndex + 1));
+        mainMenuEventsHandler.executeAdditionalMethod(sendMessage);
+
+        return new SendMessage(chatId.toString(),
+                getResultString(cards, pageIndex));
+    }
+
+    private BotApiMethod<?> chooseNextPageOrGoBack(Long chatId, Message message) {
         if (!message.getText().equals(BotCommands.SHOW_CARDS.getCommand())) {
             if (message.getText().equals("⬅️")) {
                 cardPageCache.saveCardPage(chatId, cardPageCache.getCardPageMap().get(chatId) - 1);
@@ -48,16 +70,11 @@ public class ShowCardsHandler {
                 return new SendMessage(message.getChatId().toString(), BotMessages.EXCEPTION_TRY_AGAIN.getAnswer());
             }
         }
+        return null;
+    }
 
-        int cardsAmount = 3;
-
-        List<Card> cards = cardPack.getCards().stream().toList();
-        int pageIndex = cardPageCache.getCardPageMap().get(chatId) - 1;
+    private String getResultString(List<Card> cards, int pageIndex) {
         List<String> resultList = new ArrayList<>();
-
-        SendMessage sendMessage = new SendMessage(chatId.toString(), BotMessages.INFO_YOUR_CARDS.getAnswer());
-        sendMessage.setReplyMarkup(ReplyKeyboardFactory.onShowCards(cards, pageIndex + 1));
-
         for (int i = 0; i < cardsAmount; i++) {
             Card card = cards.size() - (pageIndex * 3 + i) > 0 ? cards.get(pageIndex * 3 + i) : null;
             if (card != null) {
@@ -73,8 +90,7 @@ public class ShowCardsHandler {
             result.append(s);
             result.append("\n*****\n\n");
         }
-        mainMenuEventsHandler.executeAdditionalMethod(sendMessage);
-        return new SendMessage(chatId.toString(), result.toString());
+        return result.toString();
     }
 
     @Autowired

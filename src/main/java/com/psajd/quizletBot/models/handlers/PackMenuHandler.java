@@ -46,13 +46,13 @@ public class PackMenuHandler {
         return null;
     }
 
-    public BotApiMethod<?> addNewCard(Long chatId, Message message) {
+    public BotApiMethod<?> addNewCard(Long chatId) {
         SendMessage sendMessage = new SendMessage(chatId.toString(), BotMessages.CREATING_CARD_ADD_QUESTION.getAnswer());
         botStateCache.saveBotState(chatId, BotState.ON_ADD_CARD_TERM);
         return sendMessage;
     }
 
-    public BotApiMethod<?> removeCard(Long chatId, Message message) {
+    public BotApiMethod<?> removeCard(Long chatId) {
         botStateCache.saveBotState(chatId, BotState.ON_CARD_NAME_CHOICE);
         SendMessage sendMessage = new SendMessage(chatId.toString(), BotMessages.DELETING_CARD_ENTER_CARD_TERM.getAnswer());
         sendMessage.setReplyMarkup(ReplyKeyboardFactory.createKeyboard(BotState.ON_PACK_CREATION_START));

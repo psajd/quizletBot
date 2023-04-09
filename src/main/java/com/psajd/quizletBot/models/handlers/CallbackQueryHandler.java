@@ -25,9 +25,9 @@ public class CallbackQueryHandler {
         BotApiMethod<?> callBackAnswer = null;
 
         if (data.equals(BotCommands.ADD_CARD.getCommand())) {
-            callBackAnswer = packMenuHandler.addNewCard(chatId, callbackQuery.getMessage());
+            callBackAnswer = packMenuHandler.addNewCard(chatId);
         } else if (data.equals(BotCommands.REMOVE_CARD.getCommand())) {
-            callBackAnswer = packMenuHandler.removeCard(chatId, message);
+            callBackAnswer = packMenuHandler.removeCard(chatId);
         } else if (data.equals(BotCommands.REMOVE_CARD_PACK.getCommand())) {
             botStateCache.saveBotState(chatId, BotState.ON_REMOVE_CARD_PACK);
             callBackAnswer = packMenuHandler.removeCardPackQuestion(chatId);

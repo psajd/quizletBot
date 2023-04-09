@@ -63,12 +63,10 @@ public class MainMenuEventsHandler {
 
     public BotApiMethod<?> addPackName(Long chatId, Message message) {
         CardPack cardPack = cardPackCache.getCardPackMap().get(chatId);
+
         if (message.getText().equals(BotCommands.GO_BACK.getCommand())) {
             botStateCache.saveBotState(chatId, BotState.ON_START);
             return getStartMessage(chatId);
-        }
-        if (message.getText().isBlank()) {
-            return new SendMessage(chatId.toString(), BotMessages.WRONG_CARD_PACK_NAME.getAnswer());
         }
 
         Person person = serviceAggregator.getPersonService().getPersonById(chatId);
@@ -79,7 +77,6 @@ public class MainMenuEventsHandler {
         }
         person.addCardPack(cardPack);
         cardPack.setName(message.getText());
-
         serviceAggregator.getCardPackService().addCardPack(cardPack);
 
         botStateCache.saveBotState(chatId, BotState.ON_START);
@@ -87,6 +84,7 @@ public class MainMenuEventsHandler {
         result.setReplyMarkup(ReplyKeyboardFactory.createKeyboard(BotState.ON_START));
         return result;
     }
+
 
     public BotApiMethod<?> saveNewPerson(Message message) {
         Person person = new Person();
@@ -102,12 +100,23 @@ public class MainMenuEventsHandler {
             botStateCache.saveBotState(chatId, BotState.ON_START);
             return new SendMessage(chatId.toString(), BotMessages.EXCEPTION_NO_AVAILABLE_PACK.getAnswer());
         }
-        int maxTablesAmount = cardPacks.size() / (tableColumns * tableRows) + 1;
+
         if (tableCache.getTableNumberMap().get(chatId) == null) {
             tableCache.saveNumber(chatId, 1);
         }
-        int tableNumber = tableCache.getTableNumberMap().get(chatId);
 
+        int maxTablesAmount = cardPacks.size() / (tableColumns * tableRows) + 1;
+        int tableNumber = tableCache.getTableNumberMap().get(chatId);
+        CardPack[][] rawTable = getCardPacks(cardPacks, tableNumber);
+
+        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardFactory.createChooseTableKeyboard(rawTable, tableNumber, maxTablesAmount);
+        SendMessage sendMessage = new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_PACK_CHOOSE_TABLE.getAnswer());
+        sendMessage.setReplyMarkup(keyboardMarkup);
+        botStateCache.saveBotState(chatId, BotState.ON_CHOOSE_PACK);
+        return sendMessage;
+    }
+
+    private CardPack[][] getCardPacks(List<CardPack> cardPacks, int tableNumber) {
         CardPack[][] rawTable = new CardPack[tableRows][tableColumns];
         for (int i = 0; i < tableRows; i++) {
             for (int j = 0; j < tableColumns; j++) {
@@ -115,14 +124,9 @@ public class MainMenuEventsHandler {
                 rawTable[i][j] = index >= cardPacks.size() ? null : cardPacks.get(index);
             }
         }
-
-        ReplyKeyboardMarkup keyboardMarkup = ReplyKeyboardFactory.createChooseTableKeyboard(rawTable, tableNumber, maxTablesAmount);
-        SendMessage sendMessage = new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_PACK_CHOOSE_TABLE.getAnswer());
-        sendMessage.setReplyMarkup(InlineKeyboardFactory.createKeyboard(BotState.ON_PACK_INFO));
-        sendMessage.setReplyMarkup(keyboardMarkup);
-        botStateCache.saveBotState(chatId, BotState.ON_CHOOSE_PACK);
-        return sendMessage;
+        return rawTable;
     }
+
 
     public BotApiMethod<?> choosePack(Long chatId, Message message) {
         if (message.getText().equals("➡️")) {
@@ -157,6 +161,7 @@ public class MainMenuEventsHandler {
 
         cardPackCache.saveCardPack(chatId, cardPack);
         botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+
         SendMessage sendMessage = new SendMessage(chatId.toString(), cardPack.getName() + "\n\n" + "Pack info\n\n" +
                 "Amount of cards: " + cardPack.getCards().size() + "\n" +
                 "Wrong answers: " + "\n" +
