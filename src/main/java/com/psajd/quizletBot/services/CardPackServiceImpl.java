@@ -25,6 +25,15 @@ public class CardPackServiceImpl implements CardPackService {
     }
 
     @Override
+    public CardPack updateCardPack(CardPack cardPack) {
+        cardPackRepository.updateNameAndWrongAnswersAndCorrectAnswersById(cardPack.getName(),
+                cardPack.getWrongAnswers(),
+                cardPack.getCorrectAnswers(),
+                cardPack.getId());
+        return cardPack;
+    }
+
+    @Override
     public void deleteCardPack(CardPack cardPack) {
         cardPackRepository.deleteById(cardPack.getId());
     }

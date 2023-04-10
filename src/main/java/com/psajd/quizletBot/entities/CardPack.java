@@ -29,6 +29,10 @@ public class CardPack {
     private Set<Card> cards = new HashSet<>();
     @ManyToOne
     private Person person;
+    @Column(name = "wrong_answers")
+    private Long wrongAnswers;
+    @Column(name = "correct_answers")
+    private Long correctAnswers;
 
     @Override
     public boolean equals(Object o) {

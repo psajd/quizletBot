@@ -39,7 +39,7 @@ public class CallbackQueryHandler {
             botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
             callBackAnswer = mainMenuEventsHandler.getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
         } else if (data.equals(BotCommands.CHANGE_NAME.getCommand())) {
-
+            callBackAnswer = packMenuHandler.askCardPackName(chatId);
         }
 
         return callBackAnswer;

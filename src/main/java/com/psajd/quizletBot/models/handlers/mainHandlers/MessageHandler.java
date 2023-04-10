@@ -65,6 +65,9 @@ public class MessageHandler {
             case ON_CHECK_CORRECT_ANSWER -> {
                 return practiceHandler.checkCorrectAnswer(chatId, message);
             }
+            case ON_PACK_UPDATE_NAME -> {
+                return packMenuHandler.renameCardPack(chatId, message);
+            }
         }
         return null;
     }

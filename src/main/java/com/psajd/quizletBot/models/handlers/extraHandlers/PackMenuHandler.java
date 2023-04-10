@@ -4,6 +4,7 @@ import com.psajd.quizletBot.constants.BotCommands;
 import com.psajd.quizletBot.constants.BotMessages;
 import com.psajd.quizletBot.entities.Card;
 import com.psajd.quizletBot.entities.CardPack;
+import com.psajd.quizletBot.entities.Person;
 import com.psajd.quizletBot.models.bot.BotState;
 import com.psajd.quizletBot.models.keyboards.InlineKeyboardFactory;
 import com.psajd.quizletBot.models.keyboards.ReplyKeyboardFactory;
@@ -14,6 +15,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class PackMenuHandler {
@@ -127,6 +132,39 @@ public class PackMenuHandler {
         botStateCache.saveBotState(chatId, BotState.ON_START);
         return mainMenuEventsHandler.getStartMessage(chatId);
     }
+
+    public BotApiMethod<?> askCardPackName(Long chatId) {
+        SendMessage message = new SendMessage(String.valueOf(chatId), BotMessages.CREATING_CARD_PACK_NAME.getAnswer());
+        ReplyKeyboardMarkup replyKeyboardMarkup = ReplyKeyboardFactory.createKeyboard(BotState.ON_PACK_CREATION_START);
+        message.setReplyMarkup(replyKeyboardMarkup);
+        botStateCache.saveBotState(chatId, BotState.ON_PACK_UPDATE_NAME);
+        return message;
+    }
+
+    public BotApiMethod<?> renameCardPack(Long chatId, Message message) {
+        CardPack cardPack = cardPackCache.getCardPackMap().get(chatId);
+        if (message.getText().equals(BotCommands.GO_BACK.getCommand())) {
+            botStateCache.saveBotState(chatId, BotState.ON_START);
+            return mainMenuEventsHandler.getStartMessage(chatId);
+        }
+
+        Person person = serviceAggregator.getPersonService().getPersonById(chatId);
+        if (person.getCardPacks().stream().anyMatch(x -> x.getName().equals(message.getText()))) {
+            botStateCache.saveBotState(chatId, BotState.ON_START);
+            mainMenuEventsHandler.executeAdditionalMethod(new SendMessage(chatId.toString(), BotMessages.EXCEPTION_PACK_ALREADY_EXIST.getAnswer()));
+            return mainMenuEventsHandler.getStartMessage(chatId);
+        }
+
+        cardPack.setName(message.getText());
+        serviceAggregator.getCardPackService().addCardPack( cardPack);
+        botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
+
+        SendMessage result = new SendMessage(chatId.toString(), BotMessages.SUCCESSFUL_CARD_PACK_NAME_UPDATE.getAnswer());
+        result.setReplyMarkup(ReplyKeyboardFactory.createKeyboard(BotState.ON_START));
+        mainMenuEventsHandler.executeAdditionalMethod(result);
+        return mainMenuEventsHandler.getPackInfo(chatId, cardPackCache.getCardPackMap().get(chatId).getName());
+    }
+
 
     @Autowired
     public void setServiceAggregator(ServiceAggregator serviceAggregator) {

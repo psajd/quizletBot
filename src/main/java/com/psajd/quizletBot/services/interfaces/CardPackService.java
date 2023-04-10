@@ -7,6 +7,7 @@ import java.util.List;
 public interface CardPackService {
     CardPack addCardPack(CardPack cardPack);
 
+    CardPack updateCardPack(CardPack cardPack);
 
     void deleteCardPack(CardPack cardPack);
 

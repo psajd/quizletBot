@@ -159,11 +159,20 @@ public class MainMenuEventsHandler {
         cardPackCache.saveCardPack(chatId, cardPack);
         botStateCache.saveBotState(chatId, BotState.ON_PACK_INFO);
 
-        SendMessage sendMessage = new SendMessage(chatId.toString(), cardPack.getName() + "\n\n" + "Pack info\n\n" +
-                "Amount of cards: " + cardPack.getCards().size() + "\n" +
-                "Wrong answers: " + "\n" +
-                "Correct answers: " + "\n" +
-                "Winrate: " + "\n");
+        long wrongAnswers = cardPack.getWrongAnswers() == null ? 0 : cardPack.getWrongAnswers();
+        long correctAnswers = cardPack.getCorrectAnswers() == null ? 0 : cardPack.getCorrectAnswers();
+        long sum = wrongAnswers + correctAnswers;
+        String winrate = "not enough data";
+        if (sum != 0) {
+            winrate = String.valueOf((double) correctAnswers / sum * 100);
+            winrate = winrate.substring(0, winrate.indexOf(".") + 2);
+        }
+        SendMessage sendMessage = new SendMessage(chatId.toString(),
+                cardPack.getName() + "\n\n" +
+                        "Amount of cards: " + cardPack.getCards().size() + "\n" +
+                        "Wrong answers: " + wrongAnswers + "\n" +
+                        "Correct answers: " + correctAnswers + "\n" +
+                        "Winrate: " + winrate + "%\n");
         sendMessage.setReplyMarkup(InlineKeyboardFactory.createKeyboard(BotState.ON_PACK_INFO));
         return sendMessage;
     }

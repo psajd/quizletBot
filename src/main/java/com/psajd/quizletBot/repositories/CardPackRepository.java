@@ -13,6 +13,10 @@ import java.util.Optional;
 
 @Repository
 public interface CardPackRepository extends JpaRepository<CardPack, Long> {
+    @Transactional
+    @Modifying
+    @Query("update CardPack c set c.name = ?1, c.wrongAnswers = ?2, c.correctAnswers = ?3 where c.id = ?4")
+    int updateNameAndWrongAnswersAndCorrectAnswersById(String name, Long wrongAnswers, Long correctAnswers, Long id);
     Optional<CardPack> findByName(String name);
     @Transactional
     @Modifying

@@ -3,9 +3,11 @@ package com.psajd.quizletBot.models.handlers.extraHandlers;
 import com.psajd.quizletBot.constants.BotCommands;
 import com.psajd.quizletBot.constants.BotMessages;
 import com.psajd.quizletBot.entities.Card;
+import com.psajd.quizletBot.entities.CardPack;
 import com.psajd.quizletBot.models.bot.BotState;
 import com.psajd.quizletBot.models.keyboards.ReplyKeyboardFactory;
 import com.psajd.quizletBot.models.caching.*;
+import com.psajd.quizletBot.services.interfaces.CardPackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -22,6 +24,8 @@ public class PracticeHandler {
     private BotStateCache botStateCache;
     private CardCache cardCache;
     private MainMenuEventsHandler mainMenuEventsHandler;
+
+    private CardPackService cardPackService;
 
 
     public BotApiMethod<?> startTraining(Long chatId) {
@@ -64,12 +68,32 @@ public class PracticeHandler {
                         .getTerm())) {
             mainMenuEventsHandler.executeAdditionalMethod(new SendMessage(chatId.toString(),
                     BotMessages.SUCCESSFUL_CORRECT_ANSWER.getAnswer()));
+            addCorrectAnswer(cardPackCache.getCardPackMap().get(chatId));
             return startTraining(chatId);
         } else {
             mainMenuEventsHandler.executeAdditionalMethod(new SendMessage(chatId.toString(),
                     BotMessages.SUCCESSFUL_WRONG_ANSWER.getAnswer() + cardCache.getCardMap().get(chatId).getTerm()));
+            addWrongAnswer(cardPackCache.getCardPackMap().get(chatId));
             return startTraining(chatId);
         }
+    }
+
+    private void addCorrectAnswer(CardPack cardPack) {
+        if (cardPack.getCorrectAnswers() == null) {
+            cardPack.setCorrectAnswers(1L);
+        } else {
+            cardPack.setCorrectAnswers(1L + cardPack.getCorrectAnswers());
+        }
+        cardPackService.updateCardPack(cardPack);
+    }
+
+    private void addWrongAnswer(CardPack cardPack) {
+        if (cardPack.getWrongAnswers() == null) {
+            cardPack.setWrongAnswers(1L);
+        } else {
+            cardPack.setWrongAnswers(1L + cardPack.getWrongAnswers());
+        }
+        cardPackService.updateCardPack(cardPack);
     }
 
     private List<Card> pickNRandomCards(List<Card> lst, int n) {
@@ -96,5 +120,10 @@ public class PracticeHandler {
     @Autowired
     public void setMainMenuEventsHandler(MainMenuEventsHandler mainMenuEventsHandler) {
         this.mainMenuEventsHandler = mainMenuEventsHandler;
+    }
+
+    @Autowired
+    public void setCardPackService(CardPackService cardPackService) {
+        this.cardPackService = cardPackService;
     }
 }
