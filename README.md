@@ -9,7 +9,7 @@
   <p align="center">
     Practice your memory in a game format
     <br/>
-     <a href="https://github.com/psajd/quizletBot/blob/main/Demo.md">View Demo</a>
+     <a href="Demo.md">View Demo</a>
 </p>
 </div>
 
