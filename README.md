@@ -143,9 +143,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 
-telegram - [@psajd](https://twitter.com/your_username) - polpilik@gmail.com
+telegram - [@psajd](https://t.me/psajd) - polpilik@gmail.com
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Project Link: [https://github.com/psajd/quizletBot](https://github.com/psajd/quizletBot)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
